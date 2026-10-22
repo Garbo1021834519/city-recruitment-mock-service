@@ -1,0 +1,332 @@
+{
+  "/api/v1/activation/config": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "auto_review": "boolean",
+      "freeze_days": "number",
+      "paused": "boolean",
+      "schedule_time": "string"
+    }
+  },
+  "/api/v1/activation/customers/:id": {
+    "status": 404,
+    "ct": "application/json",
+    "shape": {
+      "detail": "string"
+    }
+  },
+  "/api/v1/activation/records": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array",
+      "total": "number"
+    }
+  },
+  "/api/v1/activation/devices": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array"
+    }
+  },
+  "/api/v1/activation/scripts": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "active_total": "number",
+      "categories": "array",
+      "items": "array",
+      "total": "number"
+    }
+  },
+  "/api/v1/activation/scripts/export": {
+    "status": 200,
+    "ct": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "note": "non-json"
+  },
+  "/api/v1/agent/conversations": {
+    "status": 422,
+    "ct": "application/json",
+    "shape": {
+      "detail": "array"
+    }
+  },
+  "/api/v1/agent/candidates": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array",
+      "total": "number"
+    }
+  },
+  "/api/v1/agent/device/:id/workflow": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "message": "string",
+      "ok": "boolean"
+    }
+  },
+  "/api/v1/agent/devices": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array"
+    }
+  },
+  "/api/v1/agent/evaluation/detail": {
+    "status": 422,
+    "ct": "application/json",
+    "shape": {
+      "detail": "array"
+    }
+  },
+  "/api/v1/agent/evaluation/overview": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "days": "number",
+      "items": "array"
+    }
+  },
+  "/api/v1/agent/messages": {
+    "status": 422,
+    "ct": "application/json",
+    "shape": {
+      "detail": "array"
+    }
+  },
+  "/api/v1/agent/old-friends/accounts": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array"
+    }
+  },
+  "/api/v1/agent/reminder-tasks": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array"
+    }
+  },
+  "/api/v1/agent/report/metrics": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "end_date": "string",
+      "items": "array",
+      "start_date": "string"
+    }
+  },
+  "/api/v1/auth/me": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "recruiter_id": "string",
+      "recruiter_type": "string",
+      "role": "string",
+      "username": "string"
+    }
+  },
+  "/api/v1/cities": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array",
+      "total": "number"
+    }
+  },
+  "/api/v1/cities/:id/factories": {
+    "status": 404,
+    "ct": "application/json",
+    "shape": {
+      "detail": "string"
+    }
+  },
+  "/api/v1/cities/:id/history": {
+    "status": 404,
+    "ct": "application/json",
+    "shape": {
+      "detail": "string"
+    }
+  },
+  "/api/v1/city-links": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "districts": "object",
+      "links": "object"
+    }
+  },
+  "/api/v1/city-links/options": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "default_districts": "object",
+      "options": "array"
+    }
+  },
+  "/api/v1/holiday-schedules": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array",
+      "total": "number"
+    }
+  },
+  "/api/v1/agent/old-friends": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array",
+      "total": "number"
+    }
+  },
+  "/api/v1/factories": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array",
+      "total": "number"
+    }
+  },
+  "/api/v1/import-export/factories/export": {
+    "status": 200,
+    "ct": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "note": "non-json"
+  },
+  "/api/v1/holiday-schedules/my-cities": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "cities": "array",
+      "unlimited": "boolean"
+    }
+  },
+  "/api/v1/knowledge/batch/export": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "__array": "non-empty",
+      "item": {
+        "answer": "string",
+        "is_active": "boolean",
+        "keywords": "array",
+        "question": "string",
+        "recruiter_id": "string",
+        "sort_order": "number"
+      }
+    }
+  },
+  "/api/v1/import-export/template": {
+    "status": 200,
+    "ct": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "note": "non-json"
+  },
+  "/api/v1/knowledge": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array",
+      "total": "number"
+    }
+  },
+  "/api/v1/recruiters": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array",
+      "total": "number"
+    }
+  },
+  "/api/v1/import-export/service-positions/export": {
+    "status": 200,
+    "ct": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "note": "non-json"
+  },
+  "/api/v1/recruiters/:id/cities": {
+    "status": 404,
+    "ct": "application/json",
+    "shape": {
+      "detail": "string"
+    }
+  },
+  "/api/v1/recruiters/:id/service-cities": {
+    "status": 404,
+    "ct": "application/json",
+    "shape": {
+      "detail": "string"
+    }
+  },
+  "/api/v1/recruiters/:id/service-cities/options": {
+    "status": 404,
+    "ct": "application/json",
+    "shape": {
+      "detail": "string"
+    }
+  },
+  "/api/v1/agent/status/dashboard": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "daily_trend": "array",
+      "degraded": "array",
+      "device_ranking": "array",
+      "devices": "object",
+      "dify_health": "array",
+      "errors": "object",
+      "messages": "object",
+      "queue": "object",
+      "state_distribution": "object"
+    }
+  },
+  "/api/v1/service-positions/:id/holidays": {
+    "status": 404,
+    "ct": "application/json",
+    "shape": {
+      "detail": "string"
+    }
+  },
+  "/api/v1/unknown-questions": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array",
+      "total": "number"
+    }
+  },
+  "/api/v1/settings": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "company_name": "string",
+      "dedup_llm_api_key": "string",
+      "dedup_llm_model": "string",
+      "requirements": "object"
+    }
+  },
+  "/api/v1/settings/agent": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "agent_base_url": "string",
+      "is_default": "boolean"
+    }
+  },
+  "/api/v1/service-positions": {
+    "status": 200,
+    "ct": "application/json",
+    "shape": {
+      "items": "array",
+      "total": "number"
+    }
+  },
+  "/api/v1/service-positions/holidays-export": {
+    "status": 200,
+    "ct": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "note": "non-json"
+  }
+}

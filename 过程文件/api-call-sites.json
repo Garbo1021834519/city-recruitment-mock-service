@@ -1,0 +1,902 @@
+[
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/config"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "PUT",
+    "path": "/api/v1/activation/config/paused"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/dashboard/stats"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/dashboard/trend"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/dashboard/population"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/dashboard/strategy-effect"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/dashboard/feed"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/records"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/activation/records/${t}/approve"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/activation/records/${t}/skip"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/activation/records/${t}/freeze"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/activation/records/${t}/run"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/customers/${t}"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "PUT",
+    "path": "/api/v1/activation/customers/${t}/summary"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/activation/customers/${t}/regenerate-summary"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/strategies"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "PUT",
+    "path": "/api/v1/activation/strategies/${t}"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "PUT",
+    "path": "/api/v1/activation/config"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/activation/strategies/${t}/test"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/devices"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "PUT",
+    "path": "/api/v1/activation/devices/${t}"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/activation/devices/batch-toggle"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/scripts"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/activation/scripts"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "PUT",
+    "path": "/api/v1/activation/scripts/${t}"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "DELETE",
+    "path": "/api/v1/activation/scripts/${t}"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/scripts/random"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/activation/scripts/export"
+  },
+  {
+    "file": "activation-odho-jV7.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/activation/scripts/import"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/devices"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/agent/devices"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "PUT",
+    "path": "/api/v1/agent/devices/${e}"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "DELETE",
+    "path": "/api/v1/agent/devices/${e}"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/agent/device/${e}/clear-unread"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/conversations"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/messages"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/agent/takeover"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/agent/manual-reply"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/candidates"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/agent/candidates/${e}/mark"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/reminder-config"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/agent/reminder-config"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/followup-config"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/agent/followup-config"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/reminder-tasks"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/evaluation/overview"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/evaluation/detail"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/agent/evaluation/run"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/report/metrics"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/report/account-summary"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/device/${e}/workflow"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "PUT",
+    "path": "/api/v1/agent/device/${e}/workflow"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "DELETE",
+    "path": "/api/v1/agent/device/${e}/workflow"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/status/dashboard"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "PUT",
+    "path": "/api/v1/agent/conversations/${t}/reset-disqualified?device_code=${e}"
+  },
+  {
+    "file": "agent-B6-Yeksp.js",
+    "client": "a",
+    "method": "PUT",
+    "path": "/api/v1/agent/conversations/${t}/restart?device_code=${e}"
+  },
+  {
+    "file": "auth-BpxAccKo.js",
+    "client": "Oe",
+    "method": "POST",
+    "path": "/api/v1/auth/login"
+  },
+  {
+    "file": "auth-BpxAccKo.js",
+    "client": "Oe",
+    "method": "GET",
+    "path": "/api/v1/auth/me"
+  },
+  {
+    "file": "cities-UOjz5X6f.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/cities"
+  },
+  {
+    "file": "cities-UOjz5X6f.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/cities/${t}"
+  },
+  {
+    "file": "cities-UOjz5X6f.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/cities"
+  },
+  {
+    "file": "cities-UOjz5X6f.js",
+    "client": "a",
+    "method": "PUT",
+    "path": "/api/v1/cities/${t}"
+  },
+  {
+    "file": "cities-UOjz5X6f.js",
+    "client": "a",
+    "method": "DELETE",
+    "path": "/api/v1/cities/${t}"
+  },
+  {
+    "file": "cities-UOjz5X6f.js",
+    "client": "a",
+    "method": "PATCH",
+    "path": "/api/v1/cities/${t}/status"
+  },
+  {
+    "file": "cities-UOjz5X6f.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/cities/${t}/history"
+  },
+  {
+    "file": "cities-UOjz5X6f.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/cities/${t}/history/${e}"
+  },
+  {
+    "file": "cities-UOjz5X6f.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/cities/${t}/restore/${e}"
+  },
+  {
+    "file": "CityLinkView-B6uUnvRz.js",
+    "client": "S",
+    "method": "GET",
+    "path": "/api/v1/city-links/options"
+  },
+  {
+    "file": "CityLinkView-B6uUnvRz.js",
+    "client": "S",
+    "method": "GET",
+    "path": "/api/v1/city-links"
+  },
+  {
+    "file": "CityLinkView-B6uUnvRz.js",
+    "client": "S",
+    "method": "POST",
+    "path": "/api/v1/city-links/batch"
+  },
+  {
+    "file": "factories-oFSTplpX.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/factories"
+  },
+  {
+    "file": "factories-oFSTplpX.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/factories/${t}"
+  },
+  {
+    "file": "factories-oFSTplpX.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/factories"
+  },
+  {
+    "file": "factories-oFSTplpX.js",
+    "client": "a",
+    "method": "PUT",
+    "path": "/api/v1/factories/${t}"
+  },
+  {
+    "file": "factories-oFSTplpX.js",
+    "client": "a",
+    "method": "DELETE",
+    "path": "/api/v1/factories/${t}"
+  },
+  {
+    "file": "factories-oFSTplpX.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/cities/${t}/factories"
+  },
+  {
+    "file": "factories-oFSTplpX.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/cities/${t}/factories"
+  },
+  {
+    "file": "factories-oFSTplpX.js",
+    "client": "a",
+    "method": "PUT",
+    "path": "/api/v1/cities/${t}/factories/${e}"
+  },
+  {
+    "file": "factories-oFSTplpX.js",
+    "client": "a",
+    "method": "DELETE",
+    "path": "/api/v1/cities/${t}/factories/${e}"
+  },
+  {
+    "file": "HolidayScheduleView-CNYSkNE4.js",
+    "client": "D",
+    "method": "GET",
+    "path": "/api/v1/holiday-schedules/my-cities"
+  },
+  {
+    "file": "HolidayScheduleView-CNYSkNE4.js",
+    "client": "D",
+    "method": "GET",
+    "path": "/api/v1/holiday-schedules"
+  },
+  {
+    "file": "HolidayScheduleView-CNYSkNE4.js",
+    "client": "D",
+    "method": "GET",
+    "path": "/api/v1/holiday-schedules/${_}"
+  },
+  {
+    "file": "HolidayScheduleView-CNYSkNE4.js",
+    "client": "D",
+    "method": "POST",
+    "path": "/api/v1/holiday-schedules"
+  },
+  {
+    "file": "HolidayScheduleView-CNYSkNE4.js",
+    "client": "D",
+    "method": "PUT",
+    "path": "/api/v1/holiday-schedules/${_}"
+  },
+  {
+    "file": "HolidayScheduleView-CNYSkNE4.js",
+    "client": "D",
+    "method": "DELETE",
+    "path": "/api/v1/holiday-schedules/${_}"
+  },
+  {
+    "file": "import-DExpz6dd.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/import-export/template"
+  },
+  {
+    "file": "import-DExpz6dd.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/import-export/import"
+  },
+  {
+    "file": "import-DExpz6dd.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/import-export/factories/export"
+  },
+  {
+    "file": "import-DExpz6dd.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/import-export/factories/import"
+  },
+  {
+    "file": "import-DExpz6dd.js",
+    "client": "r",
+    "method": "GET",
+    "path": "/api/v1/import-export/service-positions/export"
+  },
+  {
+    "file": "import-DExpz6dd.js",
+    "client": "r",
+    "method": "POST",
+    "path": "/api/v1/import-export/service-positions/import"
+  },
+  {
+    "file": "knowledge-D9f7vM6e.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/knowledge"
+  },
+  {
+    "file": "knowledge-D9f7vM6e.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/knowledge/${e}"
+  },
+  {
+    "file": "knowledge-D9f7vM6e.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/knowledge"
+  },
+  {
+    "file": "knowledge-D9f7vM6e.js",
+    "client": "a",
+    "method": "PUT",
+    "path": "/api/v1/knowledge/${e}"
+  },
+  {
+    "file": "knowledge-D9f7vM6e.js",
+    "client": "a",
+    "method": "DELETE",
+    "path": "/api/v1/knowledge/${e}"
+  },
+  {
+    "file": "knowledge-D9f7vM6e.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/knowledge/batch/export"
+  },
+  {
+    "file": "knowledge-D9f7vM6e.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/knowledge/batch/import"
+  },
+  {
+    "file": "knowledge-D9f7vM6e.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/knowledge/batch/delete"
+  },
+  {
+    "file": "knowledge-D9f7vM6e.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/knowledge/batch/update"
+  },
+  {
+    "file": "oldFriends-D640LdSK.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/old-friends"
+  },
+  {
+    "file": "oldFriends-D640LdSK.js",
+    "client": "a",
+    "method": "GET",
+    "path": "/api/v1/agent/old-friends/accounts"
+  },
+  {
+    "file": "oldFriends-D640LdSK.js",
+    "client": "a",
+    "method": "PUT",
+    "path": "/api/v1/agent/old-friends/${e}/release"
+  },
+  {
+    "file": "oldFriends-D640LdSK.js",
+    "client": "a",
+    "method": "PUT",
+    "path": "/api/v1/agent/old-friends/${e}/unrelease"
+  },
+  {
+    "file": "oldFriends-D640LdSK.js",
+    "client": "a",
+    "method": "POST",
+    "path": "/api/v1/agent/old-friends/mark"
+  },
+  {
+    "file": "oldFriends-D640LdSK.js",
+    "client": "a",
+    "method": "DELETE",
+    "path": "/api/v1/agent/old-friends/${e}"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "GET",
+    "path": "/api/v1/recruiters"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "GET",
+    "path": "/api/v1/recruiters/${e}"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "POST",
+    "path": "/api/v1/recruiters"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "PUT",
+    "path": "/api/v1/recruiters/${e}"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "DELETE",
+    "path": "/api/v1/recruiters/${e}"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "PUT",
+    "path": "/api/v1/recruiters/${e}/password"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "GET",
+    "path": "/api/v1/recruiters/${e}/cities"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "POST",
+    "path": "/api/v1/recruiters/${e}/cities"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "POST",
+    "path": "/api/v1/recruiters/${e}/cities/batch"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "PUT",
+    "path": "/api/v1/recruiters/${e}/cities/${t}"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "DELETE",
+    "path": "/api/v1/recruiters/${e}/cities/${t}"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "GET",
+    "path": "/api/v1/recruiters/${e}/service-cities"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "GET",
+    "path": "/api/v1/recruiters/${e}/service-cities/options"
+  },
+  {
+    "file": "recruiters-DuCZNpWh.js",
+    "client": "i",
+    "method": "POST",
+    "path": "/api/v1/recruiters/${e}/service-cities/batch"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "GET",
+    "path": "/api/v1/service-positions"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "GET",
+    "path": "/api/v1/service-positions/${e}"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "POST",
+    "path": "/api/v1/service-positions"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "PUT",
+    "path": "/api/v1/service-positions/${e}"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "DELETE",
+    "path": "/api/v1/service-positions/${e}"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "PUT",
+    "path": "/api/v1/service-positions/${e}/toggle-featured"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "GET",
+    "path": "/api/v1/service-positions/${e}/holidays"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "POST",
+    "path": "/api/v1/service-positions/${e}/holidays"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "PUT",
+    "path": "/api/v1/service-positions/${e}/holidays/${t}"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "DELETE",
+    "path": "/api/v1/service-positions/${e}/holidays/${t}"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "POST",
+    "path": "/api/v1/service-positions/jingcai-import?recruiter_id=${e}"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "GET",
+    "path": "/api/v1/service-positions/holidays-export"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "POST",
+    "path": "/api/v1/service-positions/holidays-import"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "GET",
+    "path": "/api/v1/recruiter-featured/cities"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "PUT",
+    "path": "/api/v1/recruiter-featured/cities/${encodeURIComponent(e)}"
+  },
+  {
+    "file": "servicePositions-BN5DUong.js",
+    "client": "i",
+    "method": "DELETE",
+    "path": "/api/v1/recruiter-featured/cities/${encodeURIComponent(e)}"
+  },
+  {
+    "file": "SettingsView-CRC-Lwxj.js",
+    "client": "h",
+    "method": "GET",
+    "path": "/api/v1/settings"
+  },
+  {
+    "file": "SettingsView-CRC-Lwxj.js",
+    "client": "h",
+    "method": "PUT",
+    "path": "/api/v1/settings"
+  },
+  {
+    "file": "SettingsView-CRC-Lwxj.js",
+    "client": "h",
+    "method": "GET",
+    "path": "/api/v1/settings/agent"
+  },
+  {
+    "file": "SettingsView-CRC-Lwxj.js",
+    "client": "h",
+    "method": "PUT",
+    "path": "/api/v1/settings/agent"
+  },
+  {
+    "file": "SettingsView-CRC-Lwxj.js",
+    "client": "h",
+    "method": "POST",
+    "path": "/api/v1/settings/sync"
+  },
+  {
+    "file": "UnknownQuestionsView-gb9HLz-h.js",
+    "client": "S",
+    "method": "GET",
+    "path": "/api/v1/unknown-questions"
+  },
+  {
+    "file": "UnknownQuestionsView-gb9HLz-h.js",
+    "client": "S",
+    "method": "POST",
+    "path": "/api/v1/unknown-questions/${m}/convert"
+  },
+  {
+    "file": "UnknownQuestionsView-gb9HLz-h.js",
+    "client": "S",
+    "method": "DELETE",
+    "path": "/api/v1/unknown-questions/${m}"
+  },
+  {
+    "file": "upload-DQDGlBcn.js",
+    "client": "d",
+    "method": "POST",
+    "path": "/api/v1/upload/image"
+  },
+  {
+    "file": "upload-DQDGlBcn.js",
+    "client": "d",
+    "method": "POST",
+    "path": "/api/v1/upload/video"
+  },
+  {
+    "file": "upload-DQDGlBcn.js",
+    "client": "d",
+    "method": "POST",
+    "path": "/api/v1/upload/image"
+  },
+  {
+    "file": "UserView-DRk-CQqE.js",
+    "client": "I",
+    "method": "GET",
+    "path": "/api/v1/auth/users"
+  },
+  {
+    "file": "UserView-DRk-CQqE.js",
+    "client": "I",
+    "method": "POST",
+    "path": "/api/v1/auth/users"
+  },
+  {
+    "file": "UserView-DRk-CQqE.js",
+    "client": "I",
+    "method": "DELETE",
+    "path": "/api/v1/auth/users/${_}"
+  }
+]

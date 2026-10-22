@@ -1,0 +1,313 @@
+[
+  {
+    "step": 5,
+    "status": 200,
+    "path": "/api/v1/auth/login",
+    "top_level_keys": [
+      "access_token",
+      "token_type"
+    ],
+    "item_keys": [],
+    "item_count": null,
+    "total": null
+  },
+  {
+    "step": 5,
+    "status": 200,
+    "path": "/api/v1/auth/me",
+    "top_level_keys": [
+      "username",
+      "role",
+      "recruiter_id",
+      "recruiter_type"
+    ],
+    "item_keys": [],
+    "item_count": null,
+    "total": null
+  },
+  {
+    "step": 6,
+    "status": 200,
+    "path": "/api/v1/cities",
+    "top_level_keys": [
+      "items",
+      "total"
+    ],
+    "item_keys": [],
+    "item_count": 0,
+    "total": 0
+  },
+  {
+    "step": 7,
+    "status": 200,
+    "path": "/api/v1/agent/reminder-config",
+    "top_level_keys": [
+      "id",
+      "recruiter_id",
+      "enabled",
+      "mode",
+      "advance_hours",
+      "fixed_time",
+      "script"
+    ],
+    "item_keys": [],
+    "item_count": null,
+    "total": null
+  },
+  {
+    "step": 7,
+    "status": 200,
+    "path": "/api/v1/agent/followup-config",
+    "top_level_keys": [
+      "id",
+      "recruiter_id",
+      "enabled",
+      "interval_seconds",
+      "max_count",
+      "scripts"
+    ],
+    "item_keys": [],
+    "item_count": null,
+    "total": null
+  },
+  {
+    "step": 11,
+    "status": 200,
+    "path": "/api/v1/agent/old-friends",
+    "top_level_keys": [
+      "items",
+      "total"
+    ],
+    "item_keys": [
+      "id",
+      "account",
+      "customer_id",
+      "nickname",
+      "device_code",
+      "status",
+      "created_at"
+    ],
+    "item_count": 1,
+    "total": 1
+  },
+  {
+    "step": 11,
+    "status": 200,
+    "path": "/api/v1/agent/old-friends/accounts",
+    "top_level_keys": [
+      "items"
+    ],
+    "item_keys": [],
+    "item_count": 1,
+    "total": null
+  },
+  {
+    "step": 11,
+    "status": 200,
+    "path": "/api/v1/agent/devices",
+    "top_level_keys": [
+      "items"
+    ],
+    "item_keys": [
+      "id",
+      "device_code",
+      "name",
+      "dify_url",
+      "dify_key",
+      "recruiter_id",
+      "status",
+      "online",
+      "mode",
+      "config",
+      "last_online",
+      "created_at",
+      "last_offline",
+      "queue_depth",
+      "queue_stale"
+    ],
+    "item_count": 1,
+    "total": null
+  },
+  {
+    "step": 13,
+    "status": 200,
+    "path": "/api/v1/agent/devices",
+    "top_level_keys": [
+      "items"
+    ],
+    "item_keys": [
+      "id",
+      "device_code",
+      "name",
+      "dify_url",
+      "dify_key",
+      "recruiter_id",
+      "status",
+      "online",
+      "mode",
+      "config",
+      "last_online",
+      "created_at",
+      "last_offline",
+      "queue_depth",
+      "queue_stale"
+    ],
+    "item_count": 1,
+    "total": null
+  },
+  {
+    "step": 13,
+    "status": 200,
+    "path": "/api/v1/agent/candidates",
+    "top_level_keys": [
+      "items",
+      "total"
+    ],
+    "item_keys": [
+      "id",
+      "device_code",
+      "customer_id",
+      "nickname",
+      "wechat_id",
+      "event_type",
+      "event_at",
+      "name",
+      "phone",
+      "interview_date",
+      "interview_time",
+      "factory_name",
+      "city",
+      "district",
+      "status",
+      "remind_count",
+      "disqualified_reason",
+      "created_at"
+    ],
+    "item_count": 36,
+    "total": 36
+  },
+  {
+    "step": 15,
+    "status": 200,
+    "path": "/api/v1/agent/report/account-summary",
+    "top_level_keys": [
+      "prefix",
+      "date_range",
+      "total",
+      "accounts",
+      "daily_trend"
+    ],
+    "item_keys": [],
+    "item_count": null,
+    "total": null
+  },
+  {
+    "step": 17,
+    "status": 200,
+    "path": "/api/v1/activation/dashboard/population",
+    "top_level_keys": [
+      "array"
+    ],
+    "item_keys": [],
+    "item_count": null,
+    "total": null
+  },
+  {
+    "step": 17,
+    "status": 200,
+    "path": "/api/v1/activation/dashboard/trend",
+    "top_level_keys": [
+      "items"
+    ],
+    "item_keys": [
+      "date",
+      "sent",
+      "replied"
+    ],
+    "item_count": 14,
+    "total": null
+  },
+  {
+    "step": 17,
+    "status": 200,
+    "path": "/api/v1/activation/dashboard/strategy-effect",
+    "top_level_keys": [
+      "array"
+    ],
+    "item_keys": [],
+    "item_count": null,
+    "total": null
+  },
+  {
+    "step": 17,
+    "status": 200,
+    "path": "/api/v1/activation/dashboard/feed",
+    "top_level_keys": [
+      "items"
+    ],
+    "item_keys": [],
+    "item_count": 0,
+    "total": null
+  },
+  {
+    "step": 17,
+    "status": 200,
+    "path": "/api/v1/activation/dashboard/stats",
+    "top_level_keys": [
+      "today_pending",
+      "today_sent",
+      "today_replied",
+      "reply_rate",
+      "frozen_total",
+      "paused"
+    ],
+    "item_keys": [],
+    "item_count": null,
+    "total": null
+  },
+  {
+    "step": 19,
+    "status": 200,
+    "path": "/api/v1/activation/strategies",
+    "top_level_keys": [
+      "items",
+      "engine"
+    ],
+    "item_keys": [
+      "code",
+      "enabled",
+      "description",
+      "trigger",
+      "daily_limit",
+      "send_window",
+      "cooldown_days",
+      "auto_push",
+      "stale_days",
+      "stale_days_max"
+    ],
+    "item_count": 4,
+    "total": null
+  },
+  {
+    "step": 21,
+    "status": 200,
+    "path": "/api/v1/activation/scripts",
+    "top_level_keys": [
+      "items",
+      "total",
+      "active_total",
+      "categories"
+    ],
+    "item_keys": [
+      "id",
+      "content",
+      "category",
+      "is_active",
+      "used_count",
+      "last_used_at",
+      "updated_at"
+    ],
+    "item_count": 16,
+    "total": 16
+  }
+]

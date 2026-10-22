@@ -1,0 +1,516 @@
+[
+  {
+    "method": "PATCH",
+    "path": "/api/v1/cities/:id/status",
+    "errors": [
+      {
+        "loc": "body.recruitment_status",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/activation/devices/batch-toggle",
+    "errors": [
+      {
+        "loc": "body.device_codes",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.enabled",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/activation/scripts",
+    "errors": [
+      {
+        "loc": "body.content",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/activation/scripts/import",
+    "errors": [
+      {
+        "loc": "body.file",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/agent/candidates/:id/mark",
+    "errors": [
+      {
+        "loc": "query.device_code",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.status",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/agent/devices",
+    "errors": [
+      {
+        "loc": "body.device_code",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/agent/followup-config",
+    "errors": [
+      {
+        "loc": "body.recruiter_id",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/agent/manual-reply",
+    "errors": [
+      {
+        "loc": "body.device_code",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.customer_id",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/agent/reminder-config",
+    "errors": [
+      {
+        "loc": "body.recruiter_id",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/agent/takeover",
+    "errors": [
+      {
+        "loc": "body.device_code",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.customer_id",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.takeover",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/login",
+    "errors": [
+      {
+        "loc": "body.username",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.password",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/cities",
+    "errors": [
+      {
+        "loc": "body.city_name",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/cities/:id/factories",
+    "errors": [
+      {
+        "loc": "body.factory_id",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/factories",
+    "errors": [
+      {
+        "loc": "body.factory_name",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/holiday-schedules",
+    "errors": [
+      {
+        "loc": "body.city_name",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.year",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.holiday_name",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.start_date",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.end_date",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/import-export/factories/import",
+    "errors": [
+      {
+        "loc": "body.file",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/import-export/import",
+    "errors": [
+      {
+        "loc": "body.file",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/import-export/service-positions/import",
+    "errors": [
+      {
+        "loc": "body.file",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/knowledge",
+    "errors": [
+      {
+        "loc": "body.question",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.answer",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/knowledge/batch/delete",
+    "errors": [
+      {
+        "loc": "body.ids",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/knowledge/batch/import",
+    "errors": [
+      {
+        "loc": "body.items",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/knowledge/batch/update",
+    "errors": [
+      {
+        "loc": "body.ids",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/recruiters",
+    "errors": [
+      {
+        "loc": "body.recruiter_id",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.name",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/recruiters/:id/cities",
+    "errors": [
+      {
+        "loc": "body.city_id",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/recruiters/:id/cities/batch",
+    "errors": [
+      {
+        "loc": "body.city_ids",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/recruiters/:id/service-cities/batch",
+    "errors": [
+      {
+        "loc": "body.city_names",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/service-positions",
+    "errors": [
+      {
+        "loc": "body.position_name",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/service-positions/:id/holidays",
+    "errors": [
+      {
+        "loc": "body.year",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.holiday_name",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.start_date",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.end_date",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/service-positions/holidays-import",
+    "errors": [
+      {
+        "loc": "body.file",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/service-positions/jingcai-import?recruiter_id=:id",
+    "errors": [
+      {
+        "loc": "query.recruiter_id",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.file",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/unknown-questions/:id/convert",
+    "errors": [
+      {
+        "loc": "body.question",
+        "type": "missing",
+        "msg": "Field required"
+      },
+      {
+        "loc": "body.answer",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/upload/image",
+    "errors": [
+      {
+        "loc": "body.file",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/upload/video",
+    "errors": [
+      {
+        "loc": "body.file",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/activation/config/paused",
+    "errors": [
+      {
+        "loc": "body.paused",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/activation/customers/:id/summary",
+    "errors": [
+      {
+        "loc": "body.summary",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/agent/conversations/:id/reset-disqualified?device_code=:id",
+    "errors": [
+      {
+        "loc": "query.device_code",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/agent/conversations/:id/restart?device_code=:id",
+    "errors": [
+      {
+        "loc": "query.device_code",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/agent/device/:id/workflow",
+    "errors": [
+      {
+        "loc": "body.file",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/recruiter-featured/cities/:id",
+    "errors": [
+      {
+        "loc": "body.position_ids",
+        "type": "missing",
+        "msg": "Field required"
+      }
+    ]
+  }
+]

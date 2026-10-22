@@ -1,0 +1,1 @@
+import{_ as o,c as s,d as a,w as r,r as c,o as n,f as _}from"./index-BGyFQL9Q.js";const l={},d={class:"page-placeholder"};function i(p,e){const t=c("el-result");return n(),s("div",d,[a(t,{icon:"info",title:"编辑招聘员"},{"sub-title":r(()=>[...e[0]||(e[0]=[_(" 此页面正在开发中 ",-1)])]),_:1})])}const u=o(l,[["render",i],["__scopeId","data-v-2ae1bada"]]);export{u as default};

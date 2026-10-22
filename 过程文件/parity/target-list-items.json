@@ -1,0 +1,234 @@
+{
+  "/api/v1/cities": {
+    "status": 200,
+    "top": [
+      "items",
+      "total"
+    ],
+    "count": 0,
+    "item": null
+  },
+  "/api/v1/factories": {
+    "status": 200,
+    "top": [
+      "items",
+      "total"
+    ],
+    "count": 0,
+    "item": null
+  },
+  "/api/v1/service-positions": {
+    "status": 200,
+    "top": [
+      "items",
+      "total"
+    ],
+    "count": 12,
+    "item": {
+      "id": "number",
+      "position_name": "string",
+      "gender": "string",
+      "age_range": "string",
+      "height_require": "string",
+      "city_name": "string",
+      "district": "string",
+      "address": "string",
+      "coordinates": "string",
+      "interview_time": "string",
+      "image_url": "string",
+      "contact_phone": "string",
+      "store_name": "string",
+      "store_address": "string",
+      "store_coordinates": "string",
+      "job_type": "string",
+      "accommodation": "string",
+      "health_cert": "string",
+      "experience": "string",
+      "interview_days": "array",
+      "interview_points": "array",
+      "recruiter_id": "string",
+      "base_sections": "object",
+      "base_section_labels": "object",
+      "is_active": "boolean",
+      "is_featured": "boolean",
+      "sort_order": "number",
+      "created_at": "string",
+      "updated_at": "string"
+    }
+  },
+  "/api/v1/knowledge": {
+    "status": 200,
+    "top": [
+      "items",
+      "total"
+    ],
+    "count": 20,
+    "item": {
+      "id": "number",
+      "question": "string",
+      "keywords": "array",
+      "is_active": "boolean",
+      "sort_order": "number",
+      "recruiter_id": "string",
+      "updated_at": "string"
+    }
+  },
+  "/api/v1/recruiters": {
+    "status": 200,
+    "top": [
+      "items",
+      "total"
+    ],
+    "count": 1,
+    "item": {
+      "id": "number",
+      "recruiter_id": "string",
+      "name": "string",
+      "description": "string",
+      "recruiter_type": "string",
+      "is_active": "boolean",
+      "sort_order": "number",
+      "llm_config": "object",
+      "city_count": "number",
+      "cities": "array",
+      "password_set": "boolean",
+      "updated_at": "string"
+    }
+  },
+  "/api/v1/agent/devices": {
+    "status": 200,
+    "top": [
+      "items"
+    ],
+    "count": 1,
+    "item": {
+      "id": "number",
+      "device_code": "string",
+      "name": "string",
+      "dify_url": "string",
+      "dify_key": "string",
+      "recruiter_id": "string",
+      "status": "boolean",
+      "online": "boolean",
+      "mode": "string",
+      "config": "object",
+      "last_online": "string",
+      "created_at": "string",
+      "last_offline": "string",
+      "queue_depth": "number",
+      "queue_stale": "string"
+    }
+  },
+  "/api/v1/agent/candidates": {
+    "status": 200,
+    "top": [
+      "items",
+      "total"
+    ],
+    "count": 50,
+    "item": {
+      "id": "number",
+      "device_code": "string",
+      "customer_id": "string",
+      "nickname": "string",
+      "wechat_id": "string",
+      "event_type": "string",
+      "event_at": "string",
+      "name": "string",
+      "phone": "string",
+      "interview_date": "string",
+      "interview_time": "string",
+      "factory_name": "string",
+      "city": "string",
+      "district": "string",
+      "status": "string",
+      "remind_count": "number",
+      "disqualified_reason": "string",
+      "created_at": "string"
+    }
+  },
+  "/api/v1/service-positions?page=1": {
+    "status": 200,
+    "top": [
+      "items",
+      "total"
+    ],
+    "count": 12,
+    "item": {
+      "id": "number",
+      "position_name": "string",
+      "gender": "string",
+      "age_range": "string",
+      "height_require": "string",
+      "city_name": "string",
+      "district": "string",
+      "address": "string",
+      "coordinates": "string",
+      "interview_time": "string",
+      "image_url": "string",
+      "contact_phone": "string",
+      "store_name": "string",
+      "store_address": "string",
+      "store_coordinates": "string",
+      "job_type": "string",
+      "accommodation": "string",
+      "health_cert": "string",
+      "experience": "string",
+      "interview_days": "array",
+      "interview_points": "array",
+      "recruiter_id": "string",
+      "base_sections": "object",
+      "base_section_labels": "object",
+      "is_active": "boolean",
+      "is_featured": "boolean",
+      "sort_order": "number",
+      "created_at": "string",
+      "updated_at": "string"
+    }
+  },
+  "/api/v1/holiday-schedules": {
+    "status": 200,
+    "top": [
+      "items",
+      "total"
+    ],
+    "count": 0,
+    "item": null
+  },
+  "/api/v1/unknown-questions": {
+    "status": 200,
+    "top": [
+      "items",
+      "total"
+    ],
+    "count": 0,
+    "item": null
+  },
+  "/api/v1/activation/devices": {
+    "status": 200,
+    "top": [
+      "items"
+    ],
+    "count": 1,
+    "item": {
+      "device_code": "string",
+      "name": "string",
+      "recruiter_id": "string",
+      "activation_enabled": "boolean",
+      "daily_limit": "number",
+      "hourly_limit": "number",
+      "burst10_limit": "number",
+      "today_sent": "number",
+      "dify_url": "string"
+    }
+  },
+  "/api/v1/activation/records": {
+    "status": 200,
+    "top": [
+      "items",
+      "total"
+    ],
+    "count": 0,
+    "item": null
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+data/*.sqlite
+data/*.sqlite-journal
+过程文件/raw-assets/
+过程文件/root-bundle.js
+过程文件/parity/evidence/
+.playwright-cli/
+*.log

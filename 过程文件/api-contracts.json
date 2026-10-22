@@ -1,0 +1,664 @@
+{
+  "generated_at": "2026-10-21T07:03:25.566Z",
+  "source_files": [
+    "AccountSummaryView-DU95QU8K.js",
+    "activation-odho-jV7.js",
+    "ActivationCustomerView-C2GPXx0f.js",
+    "ActivationDashboardView-DbEe7Baq.js",
+    "ActivationDevicesView-CrsZEBrQ.js",
+    "ActivationScriptsView-C28pb6os.js",
+    "ActivationStrategiesView-Bvovrr6d.js",
+    "ActivationTodayView-CQjDXRuv.js",
+    "agent-B6-Yeksp.js",
+    "AgentDeviceView-Dkwt3RFU.js",
+    "AgentEvaluationView-CWXPeyd8.js",
+    "AgentRulesView-4IPsrO3N.js",
+    "auth-BpxAccKo.js",
+    "CandidateView-BqRni_qH.js",
+    "cities-UOjz5X6f.js",
+    "CityCreateView-DJQZDBHB.js",
+    "CityEditView-C7SYxTug.js",
+    "CityForm-8f1k-ilK.js",
+    "CityLinkView-B6uUnvRz.js",
+    "ConversationView-o6v-Nk0t.js",
+    "DashboardView-QKpRJlq0.js",
+    "DataImportDialog-CAbml9W3.js",
+    "factories-oFSTplpX.js",
+    "FactoryCreateView-CIrF6OdD.js",
+    "FactoryEditView-lbLs-ZJB.js",
+    "FactoryForm-Bl3KX63_.js",
+    "FactoryView-B_9fws_9.js",
+    "HolidayScheduleView-CNYSkNE4.js",
+    "import-DExpz6dd.js",
+    "index-BGyFQL9Q.js",
+    "index-DGECmbjy.js",
+    "knowledge-D9f7vM6e.js",
+    "KnowledgeCreateView-jWf_trJC.js",
+    "KnowledgeEditView-D4vGca1u.js",
+    "KnowledgeView-Bjlfo6nK.js",
+    "LoginView-C_4Zg0lI.js",
+    "MainLayout-D0ilcEhw.js",
+    "MobileChatView-34iGCbF3.js",
+    "oldFriends-D640LdSK.js",
+    "OldFriendView-DhlrZV73.js",
+    "RecruiterCreateView-C9qT55YB.js",
+    "RecruiterEditView-D_5DpBb6.js",
+    "RecruiterFeaturedView-CDTOnpiF.js",
+    "recruiters-DuCZNpWh.js",
+    "RecruiterView-C4SdZHf2.js",
+    "ServicePositionCreateView-NhfS4a8r.js",
+    "ServicePositionEditView-CXAFaCI-.js",
+    "ServicePositionForm-B5MwFdiK.js",
+    "servicePositions-BN5DUong.js",
+    "ServicePositionView-B4zcaJq3.js",
+    "SettingsView-CRC-Lwxj.js",
+    "StatusDashboardView-CI6rL9RZ.js",
+    "UnknownQuestionsView-gb9HLz-h.js",
+    "upload-DQDGlBcn.js",
+    "UserView-DRk-CQqE.js"
+  ],
+  "paths": [
+    {
+      "method": "DELETE",
+      "path": "/api/v1/activation/scripts/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/agent/device/:id/workflow"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/agent/devices/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/agent/old-friends/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/auth/users/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/cities/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/cities/:id/factories/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/factories/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/holiday-schedules/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/knowledge/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/recruiter-featured/cities/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/recruiters/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/recruiters/:id/cities/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/service-positions/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/service-positions/:id/holidays/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/unknown-questions/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/config"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/customers/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/dashboard/feed"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/dashboard/population"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/dashboard/stats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/dashboard/strategy-effect"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/dashboard/trend"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/devices"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/records"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/scripts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/scripts/export"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/scripts/random"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/activation/strategies"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/candidates"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/conversations"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/device/:id/workflow"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/devices"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/evaluation/detail"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/evaluation/overview"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/followup-config"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/messages"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/old-friends"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/old-friends/accounts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/reminder-config"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/reminder-tasks"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/report/account-summary"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/report/metrics"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/status/dashboard"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/users"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cities"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cities/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cities/:id/factories"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cities/:id/history"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cities/:id/history/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/city-links"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/city-links/options"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/factories"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/factories/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/holiday-schedules"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/holiday-schedules/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/holiday-schedules/my-cities"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/import-export/factories/export"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/import-export/service-positions/export"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/import-export/template"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/knowledge"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/knowledge/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/knowledge/batch/export"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recruiter-featured/cities"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recruiters"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recruiters/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recruiters/:id/cities"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recruiters/:id/service-cities"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recruiters/:id/service-cities/options"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/service-positions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/service-positions/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/service-positions/:id/holidays"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/service-positions/holidays-export"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/settings/agent"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/unknown-questions"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/cities/:id/status"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/activation/customers/:id/regenerate-summary"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/activation/devices/batch-toggle"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/activation/records/:id/approve"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/activation/records/:id/freeze"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/activation/records/:id/run"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/activation/records/:id/skip"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/activation/scripts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/activation/scripts/import"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/activation/strategies/:id/test"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agent/candidates/:id/mark"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agent/device/:id/clear-unread"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agent/devices"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agent/evaluation/run"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agent/followup-config"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agent/manual-reply"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agent/old-friends/mark"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agent/reminder-config"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agent/takeover"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/users"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cities"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cities/:id/factories"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cities/:id/restore/:id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/city-links/batch"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/factories"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/holiday-schedules"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/import-export/factories/import"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/import-export/import"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/import-export/service-positions/import"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/knowledge"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/knowledge/batch/delete"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/knowledge/batch/import"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/knowledge/batch/update"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/recruiters"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/recruiters/:id/cities"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/recruiters/:id/cities/batch"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/recruiters/:id/service-cities/batch"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/service-positions"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/service-positions/:id/holidays"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/service-positions/holidays-import"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/service-positions/jingcai-import?recruiter_id=:id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/settings/sync"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/unknown-questions/:id/convert"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/upload/image"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/upload/video"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/activation/config"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/activation/config/paused"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/activation/customers/:id/summary"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/activation/devices/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/activation/scripts/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/activation/strategies/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/agent/conversations/:id/reset-disqualified?device_code=:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/agent/conversations/:id/restart?device_code=:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/agent/device/:id/workflow"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/agent/devices/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/agent/old-friends/:id/release"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/agent/old-friends/:id/unrelease"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/cities/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/cities/:id/factories/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/factories/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/holiday-schedules/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/knowledge/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/recruiter-featured/cities/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/recruiters/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/recruiters/:id/cities/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/recruiters/:id/password"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/service-positions/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/service-positions/:id/holidays/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/service-positions/:id/toggle-featured"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/settings"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/settings/agent"
+    }
+  ],
+  "form_fields": [
+    "file"
+  ],
+  "response_types": [
+    "blob"
+  ]
+}

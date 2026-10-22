@@ -1,0 +1,105 @@
+import type { FastifyInstance } from "fastify";
+import type { DatabaseSync } from "node:sqlite";
+import { parsePagination } from "../../shared/pagination.js";
+
+export async function registerActivationRoutes(app: FastifyInstance, db: DatabaseSync) {
+  app.get<{ Querystring: Record<string, unknown> }>("/api/v1/activation/records", async (request) => { const { page, pageSize, offset } = parsePagination(request.query); const rows = db.prepare("SELECT * FROM activation_records ORDER BY id DESC LIMIT ? OFFSET ?").all(pageSize, offset); const total = (db.prepare("SELECT COUNT(*) count FROM activation_records").get() as { count: number }).count; return { items: rows, total }; });
+  app.get("/api/v1/activation/dashboard/stats", async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const count = (status?: string) => Number((db.prepare(`SELECT COUNT(*) count FROM activation_records WHERE ${status ? "status=? AND " : ""}date(created_at)=date(?)`).get(...(status ? [status, today] : [today])) as { count: number }).count);
+    const sent = count("sent"); const replied = Number((db.prepare("SELECT COUNT(*) count FROM agent_messages WHERE direction='inbound' AND date(created_at)=date(?)").get(today) as { count: number }).count);
+    return { today_pending: count("pending_review") + count("pending_send"), today_sent: sent, today_replied: replied, reply_rate: sent ? replied / sent * 100 : 0, frozen_total: Number((db.prepare("SELECT COUNT(*) count FROM activation_records WHERE status='frozen'").get() as { count: number }).count), paused: Boolean((db.prepare("SELECT paused FROM activation_config WHERE id=1").get() as { paused: number } | undefined)?.paused) };
+  });
+  app.get("/api/v1/activation/dashboard/trend", async () => ({ items: Array.from({ length: 14 }, (_, index) => { const date = new Date(Date.now() - (13 - index) * 86400000).toISOString().slice(0, 10); return { date, sent: Number((db.prepare("SELECT COUNT(*) count FROM activation_records WHERE status='sent' AND date(updated_at)=date(?)").get(date) as { count: number }).count), replied: 0 }; }) }));
+  app.get("/api/v1/activation/dashboard/population", async () => ["no_reply", "date_trigger", "misjudge", "paused"].map((code, index) => ({ name: ["A策略·无回复激活", "B策略·到期提醒", "C策略·误判捞回", "D策略·暂停求职"][index], value: Number((db.prepare("SELECT COUNT(*) count FROM activation_records WHERE strategy=?").get(code) as { count: number }).count) })));
+  app.get("/api/v1/activation/dashboard/strategy-effect", async () => ["no_reply", "date_trigger", "misjudge", "paused"].map((code) => ({ code, sent: 0, replied: 0, rate: 0, good: false })));
+  app.get("/api/v1/activation/dashboard/feed", async () => ({ items: [] }));
+  // Target shape: {auto_review, freeze_days, paused, schedule_time} — booleans,
+  // and no daily_limit. SQLite stores the flags as 0/1, hence the Boolean() casts.
+  const readActivationConfig = () => {
+    const row = db.prepare("SELECT paused,schedule_time,freeze_days,auto_review FROM activation_config WHERE id=1").get() as { paused: number; schedule_time: string; freeze_days: number; auto_review: number };
+    return { auto_review: Boolean(row.auto_review), freeze_days: row.freeze_days, paused: Boolean(row.paused), schedule_time: row.schedule_time };
+  };
+  app.get("/api/v1/activation/config", async () => readActivationConfig());
+  app.put<{ Body: { paused?: boolean } }>("/api/v1/activation/config/paused", async (request) => { db.prepare("UPDATE activation_config SET paused=?,updated_at=CURRENT_TIMESTAMP WHERE id=1").run(request.body?.paused ? 1 : 0); return readActivationConfig(); });
+  for (const action of ["approve", "skip", "freeze", "run"] as const) {
+    app.post<{ Params: { id: string }; Body: { days?: number; reason?: string; script_id?: number } }>(`/api/v1/activation/records/:id/${action}`, async (request, reply) => {
+      const status = action === "approve" ? "pending_send" : action === "skip" ? "skipped" : action === "freeze" ? "frozen" : "sent";
+      const result = db.prepare("UPDATE activation_records SET status=?,reason=COALESCE(?,reason),tier=CASE WHEN ?='sent' THEN tier+1 ELSE tier END,updated_at=CURRENT_TIMESTAMP WHERE id=?").run(status, request.body?.reason ?? null, status, Number(request.params.id));
+      return result.changes ? db.prepare("SELECT * FROM activation_records WHERE id=?").get(Number(request.params.id)) : reply.code(404).send({ detail: "激活记录不存在" });
+    });
+  }
+  app.get("/api/v1/activation/strategies", async () => ({ items: [
+    { code: "no_reply", enabled: true, description: "AI 最后回复后客户长期未再响应的沉淀客户", trigger: "最后一条为 AI 消息且沉默 1~3 天、首次对话在 10 天内", daily_limit: 200, send_window: ["09:00", "21:00"], cooldown_days: 14, auto_push: { enabled: true, offsets_days: [1, 2, 3] }, stale_days: 1, stale_days_max: 3 },
+    { code: "date_trigger", enabled: false, description: "已邀约/已提醒但面试日已过或临近未到场的客户", trigger: "面试日进入提醒窗口", daily_limit: 20, send_window: ["09:00", "21:00"], cooldown_days: 14, auto_push: null },
+    { code: "misjudge", enabled: false, description: "被判不符合但客户仍在主动说话，疑似误判", trigger: "判不符合后 72 小时内客户仍有新消息", daily_limit: 20, send_window: ["09:00", "21:00"], cooldown_days: 14, auto_push: null },
+    { code: "paused", enabled: false, description: "客户明确说先不考虑/过段时间等的暂缓求职者", trigger: "最后发言 ≥5 天且含暂停语", daily_limit: 20, send_window: ["09:00", "21:00"], cooldown_days: 14, auto_push: null },
+  ], engine: { schedule_time: "10:07", freeze_days: 14, auto_review: false } }));
+  app.get<{ Querystring: Record<string, unknown> }>("/api/v1/activation/scripts", async (request) => { const { page, pageSize, offset } = parsePagination(request.query); const rows = db.prepare("SELECT id,content,data_json,status,created_at,updated_at FROM activation_scripts ORDER BY id DESC LIMIT ? OFFSET ?").all(pageSize, offset) as Array<Record<string, unknown>>; const items = rows.map((row) => { const data = typeof row.data_json === "string" ? JSON.parse(row.data_json) : {}; return { id: row.id, content: row.content, category: data.category ?? "寒暄召回", is_active: row.status === "enabled", used_count: Number(data.used_count ?? 0), last_used_at: data.last_used_at ?? "", updated_at: row.updated_at }; }); const total = Number((db.prepare("SELECT COUNT(*) count FROM activation_scripts").get() as { count: number }).count); const active_total = Number((db.prepare("SELECT COUNT(*) count FROM activation_scripts WHERE status='enabled'").get() as { count: number }).count); return { items, total, active_total, categories: [...new Set(items.map((item) => item.category))] }; });
+  app.get("/api/v1/activation/scripts/random", async () => {
+    const row = db.prepare("SELECT id,content,data_json FROM activation_scripts WHERE status='enabled' ORDER BY RANDOM() LIMIT 1").get() as { id: number; content: string; data_json: string } | undefined;
+    return row ? { id: row.id, content: row.content, category: JSON.parse(row.data_json).category ?? "寒暄召回" } : { detail: "语料库为空" };
+  });
+  app.put<{ Body: { paused?: boolean; schedule_time?: string; freeze_days?: number; auto_review?: boolean } }>("/api/v1/activation/config", async (request) => { const body = request.body ?? {}; db.prepare("UPDATE activation_config SET paused=COALESCE(?,paused),schedule_time=COALESCE(?,schedule_time),freeze_days=COALESCE(?,freeze_days),auto_review=COALESCE(?,auto_review),updated_at=CURRENT_TIMESTAMP WHERE id=1").run(typeof body.paused === "boolean" ? (body.paused ? 1 : 0) : null, typeof body.schedule_time === "string" ? body.schedule_time : null, typeof body.freeze_days === "number" ? body.freeze_days : null, typeof body.auto_review === "boolean" ? (body.auto_review ? 1 : 0) : null); return readActivationConfig(); });
+  // Both 404 with "策略不存在" when the strategy row is missing.
+  const strategyExists = (id: number) => Boolean(db.prepare("SELECT id FROM activation_strategies WHERE id=?").get(id));
+  app.put<{ Params: { id: string }; Body: Record<string, unknown> }>("/api/v1/activation/strategies/:id", async (request, reply) => {
+    const id = Number(request.params.id);
+    if (!strategyExists(id)) return reply.code(404).send({ detail: "策略不存在" });
+    const body = request.body ?? {};
+    db.prepare("UPDATE activation_strategies SET strategy_name=COALESCE(?,strategy_name),status=COALESCE(?,status),data_json=?,updated_at=CURRENT_TIMESTAMP WHERE id=?")
+      .run(typeof body.strategy_name === "string" ? body.strategy_name : null, typeof body.enabled === "boolean" ? (body.enabled ? "enabled" : "disabled") : null, JSON.stringify(body), id);
+    return db.prepare("SELECT id,strategy_name,status,data_json FROM activation_strategies WHERE id=?").get(id);
+  });
+  app.post<{ Params: { id: string }; Body: { customer_id?: number } }>("/api/v1/activation/strategies/:id/test", async (request, reply) => {
+    const id = Number(request.params.id);
+    if (!strategyExists(id)) return reply.code(404).send({ detail: "策略不存在" });
+    return { success: true, strategy_id: id, customer_id: request.body?.customer_id ?? null, matched: false };
+  });
+  app.put<{ Params: { id: string }; Body: Record<string, unknown> }>("/api/v1/activation/devices/:id", async (request, reply) => {
+    // Target rejects non-admin device writes with 403 before any lookup.
+    if (request.auth?.role !== "admin") return reply.code(403).send({ detail: "无权操作该设备" });
+    const body = request.body ?? {}; const result = db.prepare("UPDATE activation_devices SET device_name=COALESCE(?,device_name),status=COALESCE(?,status),data_json=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").run(typeof body.name === "string" ? body.name : null, typeof body.enabled === "boolean" ? (body.enabled ? "enabled" : "disabled") : null, JSON.stringify(body), Number(request.params.id)); return result.changes ? { success: true, ...body } : reply.code(404).send({ detail: "激活设备不存在" }); });
+  app.post<{ Body: { device_codes?: string[]; enabled?: boolean } }>("/api/v1/activation/devices/batch-toggle", async (request) => ({ success: true, updated: Array.isArray(request.body?.device_codes) ? request.body.device_codes.length : 0 }));
+  app.post<{ Body: Record<string, unknown> }>("/api/v1/activation/scripts", async (request) => { const body = request.body ?? {}; const result = db.prepare("INSERT INTO activation_scripts(script_name,content,status,data_json) VALUES (?,?,?,?) RETURNING *").get(String(body.category ?? "语料"), String(body.content ?? ""), body.is_active === false ? "disabled" : "enabled", JSON.stringify(body)); return result; });
+  app.put<{ Params: { id: string }; Body: Record<string, unknown> }>("/api/v1/activation/scripts/:id", async (request, reply) => { const body = request.body ?? {}; const result = db.prepare("UPDATE activation_scripts SET content=COALESCE(?,content),status=COALESCE(?,status),data_json=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").run(typeof body.content === "string" ? body.content : null, typeof body.is_active === "boolean" ? (body.is_active ? "enabled" : "disabled") : null, JSON.stringify(body), Number(request.params.id)); return result.changes ? db.prepare("SELECT id,content,status,data_json FROM activation_scripts WHERE id=?").get(Number(request.params.id)) : reply.code(404).send({ detail: "语料不存在" }); });
+  app.delete<{ Params: { id: string } }>("/api/v1/activation/scripts/:id", async (request, reply) => {
+    const result = db.prepare("DELETE FROM activation_scripts WHERE id=?").run(Number(request.params.id));
+    return result.changes ? { success: true } : reply.code(404).send({ detail: "语料不存在" });
+  });
+  // Target item shape (no `id`): device_code, name, recruiter_id,
+  // activation_enabled (0/1), daily_limit, hourly_limit, burst10_limit,
+  // today_sent, dify_url — all numbers where a flag is expected.
+  app.get("/api/v1/activation/devices", async () => {
+    const rows = db.prepare("SELECT * FROM activation_devices ORDER BY id").all() as Array<Record<string, unknown>>;
+    const items = rows.map((row) => {
+      const data = typeof row.data_json === "string" ? JSON.parse(row.data_json) : {};
+      return {
+        device_code: String(data.device_code ?? ""),
+        name: String(data.name ?? row.device_name ?? ""),
+        recruiter_id: String(data.recruiter_id ?? ""),
+        activation_enabled: row.status === "enabled",
+        daily_limit: Number(data.daily_limit ?? 20),
+        hourly_limit: Number(data.hourly_limit ?? 10),
+        burst10_limit: Number(data.burst10_limit ?? 3),
+        today_sent: Number(data.today_sent ?? 0),
+        dify_url: String(data.dify_url ?? ""),
+      };
+    });
+    return { items };
+  });
+  app.get<{ Params: { id: string } }>("/api/v1/activation/customers/:id", async (request, reply) => {
+    const customerId = Number(request.params.id);
+    const records = db.prepare("SELECT * FROM activation_records WHERE customer_id=? ORDER BY id DESC").all(customerId);
+    if (!records.length) return reply.code(404).send({ detail: "客户不存在或无权访问" });
+    return { customer_id: customerId, summary: "", records };
+  });
+  // Regenerating a summary needs at least one activation record to summarise;
+  // the target answers 404 "客户不存在或无权访问" otherwise.
+  app.post<{ Params: { id: string } }>("/api/v1/activation/customers/:id/regenerate-summary", async (request, reply) => {
+    const customerId = Number(request.params.id);
+    const records = db.prepare("SELECT * FROM activation_records WHERE customer_id=? ORDER BY id DESC").all(customerId);
+    if (!records.length) return reply.code(404).send({ detail: "客户不存在或无权访问" });
+    return { success: true, customer_id: customerId, summary: "" };
+  });
+}

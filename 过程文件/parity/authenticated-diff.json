@@ -1,0 +1,1652 @@
+{
+  "generatedAt": "2026-10-22T07:27:22.955Z",
+  "target": {
+    "origin": "http://47.107.245.246:8080",
+    "user": "yihong"
+  },
+  "local": {
+    "origin": "http://127.0.0.1:8090",
+    "user": "local-customer"
+  },
+  "contractCount": 149,
+  "identical": 137,
+  "diverged": 12,
+  "divergences": [
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/evaluation/overview",
+      "target": {
+        "status": 200,
+        "shape": {
+          "days": "number",
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "device_code": "string",
+              "device_name": "string",
+              "dimension_scores": {},
+              "invited_count": "number",
+              "today_level": "null",
+              "today_score": "null",
+              "total_conversations": "number",
+              "trend": {
+                "__kind": "array",
+                "__len": "empty",
+                "item": "undefined"
+              }
+            }
+          }
+        },
+        "detail": null
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "days": "number",
+          "items": {
+            "__kind": "array",
+            "__len": "empty",
+            "item": "undefined"
+          }
+        },
+        "detail": null
+      },
+      "diffs": [
+        "items.__len.: non-empty != empty",
+        "items.item.: [object Object] != undefined"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/candidates",
+      "target": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "city": "string",
+              "created_at": "string",
+              "customer_id": "string",
+              "device_code": "string",
+              "disqualified_reason": "string",
+              "district": "string",
+              "event_at": "string",
+              "event_type": "string",
+              "factory_name": "string",
+              "id": "number",
+              "interview_date": "string",
+              "interview_time": "string",
+              "name": "string",
+              "nickname": "string",
+              "phone": "string",
+              "remind_count": "number",
+              "status": "string",
+              "wechat_id": "string"
+            }
+          },
+          "total": "number"
+        },
+        "detail": null
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "city": "string",
+              "created_at": "string",
+              "customer_id": "string",
+              "data_json": "string",
+              "device_code": "string",
+              "disqualified_reason": "string",
+              "district": "string",
+              "event_at": "string",
+              "event_type": "string",
+              "factory_name": "string",
+              "id": "number",
+              "interview_date": "string",
+              "interview_time": "string",
+              "name": "string",
+              "nickname": "string",
+              "phone": "string",
+              "remind_count": "number",
+              "status": "string",
+              "updated_at": "string"
+            }
+          },
+          "total": "number"
+        },
+        "detail": null
+      },
+      "diffs": [
+        "items.item.wechat_id: missing locally",
+        "items.item.data_json: extra locally",
+        "items.item.updated_at: extra locally"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/report/metrics",
+      "target": {
+        "status": 200,
+        "shape": {
+          "end_date": "string",
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "checked_in": "number",
+              "date": "string",
+              "disqualified": "number",
+              "invited": "number",
+              "new_total": "number",
+              "pending_invite": "number"
+            }
+          },
+          "start_date": "string"
+        },
+        "detail": null
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "end_date": "string",
+          "items": {
+            "__kind": "array",
+            "__len": "empty",
+            "item": "undefined"
+          },
+          "start_date": "string"
+        },
+        "detail": null
+      },
+      "diffs": [
+        "items.__len.: non-empty != empty",
+        "items.item.: [object Object] != undefined"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cities",
+      "target": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "empty",
+            "item": "undefined"
+          },
+          "total": "number"
+        },
+        "detail": null
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "city_name": "string",
+              "created_at": "string",
+              "districts": {
+                "__kind": "array",
+                "__len": "non-empty",
+                "item": "string"
+              },
+              "id": "number",
+              "interview_site_name": "string",
+              "province": "string",
+              "recruitment_status": "string",
+              "updated_at": "string"
+            }
+          },
+          "total": "number"
+        },
+        "detail": null
+      },
+      "diffs": [
+        "items.__len.: empty != non-empty",
+        "items.item.: undefined != [object Object]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/devices",
+      "target": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "config": {
+                "event_rules": {
+                  "__kind": "array",
+                  "__len": "non-empty",
+                  "item": {
+                    "action": "string",
+                    "description": "string",
+                    "event": "string",
+                    "keywords": {
+                      "__kind": "array",
+                      "__len": "non-empty",
+                      "item": "string"
+                    },
+                    "match_mode": "string",
+                    "once_per_session": "boolean"
+                  }
+                },
+                "merge_delay_seconds": "number",
+                "merge_requery": "boolean",
+                "quiet_hours": {
+                  "enabled": "boolean",
+                  "end": "string",
+                  "start": "string"
+                },
+                "reminder": {
+                  "enabled": "boolean",
+                  "rules": {
+                    "__kind": "array",
+                    "__len": "non-empty",
+                    "item": {
+                      "script": "string",
+                      "time": "string",
+                      "type": "string"
+                    }
+                  }
+                },
+                "timeout": {
+                  "enabled": "boolean",
+                  "interval_seconds": "number",
+                  "max_count": "number",
+                  "scripts": {
+                    "__kind": "array",
+                    "__len": "non-empty",
+                    "item": "string"
+                  }
+                }
+              },
+              "created_at": "string",
+              "device_code": "string",
+              "dify_key": "string",
+              "dify_url": "string",
+              "id": "number",
+              "last_offline": "string",
+              "last_online": "string",
+              "mode": "string",
+              "name": "string",
+              "online": "boolean",
+              "queue_depth": "number",
+              "queue_stale": "string",
+              "recruiter_id": "string",
+              "status": "boolean"
+            }
+          }
+        },
+        "detail": null
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "config": {
+                "event_rules": {
+                  "__kind": "array",
+                  "__len": "non-empty",
+                  "item": {
+                    "action": "string",
+                    "description": "string",
+                    "event": "string",
+                    "keywords": {
+                      "__kind": "array",
+                      "__len": "non-empty",
+                      "item": "string"
+                    },
+                    "match_mode": "string",
+                    "once_per_session": "boolean"
+                  }
+                },
+                "merge_delay_seconds": "number",
+                "merge_requery": "boolean",
+                "quiet_hours": {
+                  "enabled": "boolean",
+                  "end": "string",
+                  "start": "string"
+                },
+                "reminder": {
+                  "enabled": "boolean",
+                  "rules": {
+                    "__kind": "array",
+                    "__len": "non-empty",
+                    "item": {
+                      "script": "string",
+                      "time": "string",
+                      "type": "string"
+                    }
+                  }
+                },
+                "timeout": "number"
+              },
+              "created_at": "string",
+              "device_code": "string",
+              "dify_key": "string",
+              "dify_url": "string",
+              "id": "number",
+              "last_offline": "null",
+              "last_online": "null",
+              "mode": "string",
+              "name": "string",
+              "online": "boolean",
+              "queue_depth": "number",
+              "queue_stale": "boolean",
+              "recruiter_id": "string",
+              "status": "boolean"
+            }
+          }
+        },
+        "detail": null
+      },
+      "diffs": [
+        "items.item.config.timeout.: [object Object] != number",
+        "items.item.last_offline.: string != null",
+        "items.item.last_online.: string != null",
+        "items.item.queue_stale.: string != boolean"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agent/status/dashboard",
+      "target": {
+        "status": 200,
+        "shape": {
+          "daily_trend": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "date": "string",
+              "invited": "number",
+              "rate": "number",
+              "total": "number"
+            }
+          },
+          "degraded": {
+            "__kind": "array",
+            "__len": "empty",
+            "item": "undefined"
+          },
+          "device_ranking": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "count": "number",
+              "device_code": "string"
+            }
+          },
+          "devices": {
+            "active_today": "number",
+            "total": "number"
+          },
+          "dify_health": {
+            "__kind": "array",
+            "__len": "empty",
+            "item": "undefined"
+          },
+          "errors": {
+            "ai_abnormal": "number",
+            "failed_today": "number"
+          },
+          "messages": {
+            "hourly": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": {
+                "count": "number",
+                "hour": "number"
+              }
+            },
+            "total": "number"
+          },
+          "queue": {
+            "pending": "number"
+          },
+          "state_distribution": {
+            "active": "number",
+            "disqualified": "number",
+            "followup_invite": "number",
+            "timeout_1": "number",
+            "timeout_2": "number",
+            "timeout_3": "number",
+            "waiting": "number"
+          }
+        },
+        "detail": null
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "daily_trend": {
+            "__kind": "array",
+            "__len": "empty",
+            "item": "undefined"
+          },
+          "degraded": {
+            "__kind": "array",
+            "__len": "empty",
+            "item": "undefined"
+          },
+          "device_ranking": {
+            "__kind": "array",
+            "__len": "empty",
+            "item": "undefined"
+          },
+          "devices": {
+            "active_today": "number",
+            "total": "number"
+          },
+          "dify_health": {
+            "__kind": "array",
+            "__len": "empty",
+            "item": "undefined"
+          },
+          "errors": {
+            "ai_abnormal": "number",
+            "failed_today": "number"
+          },
+          "messages": {
+            "hourly": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": {
+                "count": "number",
+                "hour": "number"
+              }
+            },
+            "total": "number"
+          },
+          "queue": {
+            "pending": "number"
+          },
+          "state_distribution": {}
+        },
+        "detail": null
+      },
+      "diffs": [
+        "daily_trend.__len.: non-empty != empty",
+        "daily_trend.item.: [object Object] != undefined",
+        "device_ranking.__len.: non-empty != empty",
+        "device_ranking.item.: [object Object] != undefined",
+        "state_distribution.active: missing locally",
+        "state_distribution.disqualified: missing locally",
+        "state_distribution.followup_invite: missing locally",
+        "state_distribution.timeout_1: missing locally",
+        "state_distribution.timeout_2: missing locally",
+        "state_distribution.timeout_3: missing locally",
+        "state_distribution.waiting: missing locally"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/city-links/options",
+      "target": {
+        "status": 200,
+        "shape": {
+          "default_districts": {
+            "东莞": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "中山": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "临沂": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "佛山": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "北京": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "十堰": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "南京": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "天津": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "威海": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "宜昌": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "宿州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "常熟": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "广州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "廊坊": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "惠州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "扬州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "日照": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "昆山": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "曲阜": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "杭州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "枣庄": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "武汉": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "济南": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "济宁": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "淄博": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "淮安": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "深圳": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "湖州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "滁州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "滨州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "潍坊": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "烟台": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "绍兴": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "肇庆": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "芜湖": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "苏州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "铜陵": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "镇江": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "青岛": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "马鞍山": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "龙口": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            }
+          },
+          "options": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "city": "string",
+              "count": "number"
+            }
+          }
+        },
+        "detail": null
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "default_districts": {
+            "东莞": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "广州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "深圳": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            }
+          },
+          "options": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "city": "string",
+              "count": "number"
+            }
+          }
+        },
+        "detail": null
+      },
+      "diffs": [
+        "default_districts.中山: missing locally",
+        "default_districts.临沂: missing locally",
+        "default_districts.佛山: missing locally",
+        "default_districts.北京: missing locally",
+        "default_districts.十堰: missing locally",
+        "default_districts.南京: missing locally",
+        "default_districts.天津: missing locally",
+        "default_districts.威海: missing locally",
+        "default_districts.宜昌: missing locally",
+        "default_districts.宿州: missing locally",
+        "default_districts.常熟: missing locally",
+        "default_districts.廊坊: missing locally",
+        "default_districts.惠州: missing locally",
+        "default_districts.扬州: missing locally",
+        "default_districts.日照: missing locally",
+        "default_districts.昆山: missing locally",
+        "default_districts.曲阜: missing locally",
+        "default_districts.杭州: missing locally",
+        "default_districts.枣庄: missing locally",
+        "default_districts.武汉: missing locally",
+        "default_districts.济南: missing locally",
+        "default_districts.济宁: missing locally",
+        "default_districts.淄博: missing locally",
+        "default_districts.淮安: missing locally",
+        "default_districts.湖州: missing locally",
+        "default_districts.滁州: missing locally",
+        "default_districts.滨州: missing locally",
+        "default_districts.潍坊: missing locally",
+        "default_districts.烟台: missing locally",
+        "default_districts.绍兴: missing locally",
+        "default_districts.肇庆: missing locally",
+        "default_districts.芜湖: missing locally",
+        "default_districts.苏州: missing locally",
+        "default_districts.铜陵: missing locally",
+        "default_districts.镇江: missing locally",
+        "default_districts.青岛: missing locally",
+        "default_districts.马鞍山: missing locally",
+        "default_districts.龙口: missing locally"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/factories",
+      "target": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "empty",
+            "item": "undefined"
+          },
+          "total": "number"
+        },
+        "detail": null
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "city_id": "number",
+              "created_at": "string",
+              "factory_name": "string",
+              "id": "number",
+              "status": "string",
+              "updated_at": "string"
+            }
+          },
+          "total": "number"
+        },
+        "detail": null
+      },
+      "diffs": [
+        "items.__len.: empty != non-empty",
+        "items.item.: undefined != [object Object]"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/city-links",
+      "target": {
+        "status": 200,
+        "shape": {
+          "districts": {
+            "东莞": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "中山": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "临沂": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "北京": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "十堰": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "南京": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "台州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "合肥": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "天津": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "威海": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "宁波": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "宜昌": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "宿州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "常熟": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "广州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "廊坊": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "惠州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "扬州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "日照": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "昆山": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "曲阜": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "杭州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "枣庄": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "武汉": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "济南": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "济宁": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "淄博": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "淮安": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "深圳": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "湖州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "滁州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "滨州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "潍坊": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "烟台": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "绍兴": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "肇庆": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "芜湖": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "苏州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "铜陵": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "镇江": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "青岛": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "马鞍山": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "龙口": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            }
+          },
+          "links": {
+            "临沂": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "北京": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "十堰": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "南京": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "台州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "合肥": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "天津": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "威海": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "宁波": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "宜昌": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "常熟": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "廊坊": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "扬州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "日照": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "昆山": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "杭州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "枣庄": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "武汉": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "济南": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "济宁": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "淄博": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "淮安": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "湖州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "滁州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "滨州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "潍坊": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "烟台": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "绍兴": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "芜湖": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "苏州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "荣成": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "铜陵": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "镇江": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "青岛": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "龙口": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            }
+          }
+        },
+        "detail": null
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "districts": {
+            "东莞": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "广州": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            },
+            "深圳": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "string"
+            }
+          },
+          "links": {
+            "1": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "number"
+            },
+            "2": {
+              "__kind": "array",
+              "__len": "non-empty",
+              "item": "number"
+            }
+          }
+        },
+        "detail": null
+      },
+      "diffs": [
+        "districts.中山: missing locally",
+        "districts.临沂: missing locally",
+        "districts.北京: missing locally",
+        "districts.十堰: missing locally",
+        "districts.南京: missing locally",
+        "districts.台州: missing locally",
+        "districts.合肥: missing locally",
+        "districts.天津: missing locally",
+        "districts.威海: missing locally",
+        "districts.宁波: missing locally",
+        "districts.宜昌: missing locally",
+        "districts.宿州: missing locally",
+        "districts.常熟: missing locally",
+        "districts.廊坊: missing locally",
+        "districts.惠州: missing locally",
+        "districts.扬州: missing locally",
+        "districts.日照: missing locally",
+        "districts.昆山: missing locally",
+        "districts.曲阜: missing locally",
+        "districts.杭州: missing locally",
+        "districts.枣庄: missing locally",
+        "districts.武汉: missing locally",
+        "districts.济南: missing locally",
+        "districts.济宁: missing locally",
+        "districts.淄博: missing locally",
+        "districts.淮安: missing locally",
+        "districts.湖州: missing locally",
+        "districts.滁州: missing locally",
+        "districts.滨州: missing locally",
+        "districts.潍坊: missing locally",
+        "districts.烟台: missing locally",
+        "districts.绍兴: missing locally",
+        "districts.肇庆: missing locally",
+        "districts.芜湖: missing locally",
+        "districts.苏州: missing locally",
+        "districts.铜陵: missing locally",
+        "districts.镇江: missing locally",
+        "districts.青岛: missing locally",
+        "districts.马鞍山: missing locally",
+        "districts.龙口: missing locally",
+        "links.临沂: missing locally",
+        "links.北京: missing locally",
+        "links.十堰: missing locally",
+        "links.南京: missing locally",
+        "links.台州: missing locally",
+        "links.合肥: missing locally",
+        "links.天津: missing locally",
+        "links.威海: missing locally",
+        "links.宁波: missing locally",
+        "links.宜昌: missing locally",
+        "links.常熟: missing locally",
+        "links.廊坊: missing locally",
+        "links.扬州: missing locally",
+        "links.日照: missing locally",
+        "links.昆山: missing locally",
+        "links.杭州: missing locally",
+        "links.枣庄: missing locally",
+        "links.武汉: missing locally",
+        "links.济南: missing locally",
+        "links.济宁: missing locally",
+        "links.淄博: missing locally",
+        "links.淮安: missing locally",
+        "links.湖州: missing locally",
+        "links.滁州: missing locally",
+        "links.滨州: missing locally",
+        "links.潍坊: missing locally",
+        "links.烟台: missing locally",
+        "links.绍兴: missing locally",
+        "links.芜湖: missing locally",
+        "links.苏州: missing locally",
+        "links.荣成: missing locally",
+        "links.铜陵: missing locally",
+        "links.镇江: missing locally",
+        "links.青岛: missing locally",
+        "links.龙口: missing locally",
+        "links.1: extra locally",
+        "links.2: extra locally"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/recruiters",
+      "target": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "cities": {
+                "__kind": "array",
+                "__len": "non-empty",
+                "item": {
+                  "city_name": "string",
+                  "id": "number",
+                  "is_enabled": "boolean",
+                  "recruiter_id": "string",
+                  "sort_order": "number"
+                }
+              },
+              "city_count": "number",
+              "description": "string",
+              "id": "number",
+              "is_active": "boolean",
+              "llm_config": {},
+              "name": "string",
+              "password_set": "boolean",
+              "recruiter_id": "string",
+              "recruiter_type": "string",
+              "sort_order": "number",
+              "updated_at": "string"
+            }
+          },
+          "total": "number"
+        },
+        "detail": null
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "cities": {
+                "__kind": "array",
+                "__len": "empty",
+                "item": "undefined"
+              },
+              "city_count": "number",
+              "city_id": "number",
+              "created_at": "string",
+              "id": "number",
+              "is_active": "boolean",
+              "name": "string",
+              "password_set": "boolean",
+              "recruiter_id": "string",
+              "recruiter_type": "string",
+              "status": "string",
+              "updated_at": "string",
+              "username": "string"
+            }
+          },
+          "total": "number"
+        },
+        "detail": null
+      },
+      "diffs": [
+        "items.item.description: missing locally",
+        "items.item.llm_config: missing locally",
+        "items.item.sort_order: missing locally",
+        "items.item.city_id: extra locally",
+        "items.item.created_at: extra locally",
+        "items.item.status: extra locally",
+        "items.item.username: extra locally",
+        "items.item.cities.__len.: non-empty != empty",
+        "items.item.cities.item.: [object Object] != undefined"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/service-positions",
+      "target": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "accommodation": "string",
+              "address": "string",
+              "age_range": "string",
+              "base_section_labels": {
+                "checkin_guide": "string",
+                "dorm_env": "string",
+                "factory_env": "string",
+                "interview_notice": "string",
+                "luggage_question": "string",
+                "meal_dorm": "string",
+                "medical_fee": "string",
+                "positions": "string",
+                "registration_form": "string",
+                "requirements": "string",
+                "salary_ask": "string",
+                "salary_detail": "string",
+                "shift_info": "string",
+                "social_insurance": "string",
+                "uniform": "string",
+                "work_content": "string",
+                "work_env": "string",
+                "work_hours": "string"
+              },
+              "base_sections": {
+                "checkin_guide": "string",
+                "dorm_env": "string",
+                "factory_env": "string",
+                "interview_notice": "string",
+                "luggage_question": "string",
+                "meal_dorm": "string",
+                "medical_fee": "string",
+                "positions": "string",
+                "registration_form": "string",
+                "requirements": "string",
+                "salary_ask": "string",
+                "salary_detail": "string",
+                "shift_info": "string",
+                "social_insurance": "string",
+                "uniform": "string",
+                "work_content": "string",
+                "work_env": "string",
+                "work_hours": "string"
+              },
+              "city_name": "string",
+              "contact_phone": "string",
+              "coordinates": "string",
+              "created_at": "string",
+              "district": "string",
+              "experience": "string",
+              "gender": "string",
+              "health_cert": "string",
+              "height_require": "string",
+              "id": "number",
+              "image_url": "string",
+              "interview_days": {
+                "__kind": "array",
+                "__len": "non-empty",
+                "item": "string"
+              },
+              "interview_points": {
+                "__kind": "array",
+                "__len": "non-empty",
+                "item": {
+                  "address": "string",
+                  "contact_phone": "string",
+                  "coordinates": "string",
+                  "districts": {
+                    "__kind": "array",
+                    "__len": "empty",
+                    "item": "undefined"
+                  },
+                  "name": "string"
+                }
+              },
+              "interview_time": "string",
+              "is_active": "boolean",
+              "is_featured": "boolean",
+              "job_type": "string",
+              "position_name": "string",
+              "recruiter_id": "string",
+              "sort_order": "number",
+              "store_address": "string",
+              "store_coordinates": "string",
+              "store_name": "string",
+              "updated_at": "string"
+            }
+          },
+          "total": "number"
+        },
+        "detail": null
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "items": {
+            "__kind": "array",
+            "__len": "non-empty",
+            "item": {
+              "accommodation": "string",
+              "address": "string",
+              "age_range": "string",
+              "base_section_labels": {
+                "checkin_guide": "string",
+                "dorm_env": "string",
+                "factory_env": "string",
+                "interview_notice": "string",
+                "luggage_question": "string",
+                "meal_dorm": "string",
+                "medical_fee": "string",
+                "positions": "string",
+                "registration_form": "string",
+                "requirements": "string",
+                "salary_ask": "string",
+                "salary_detail": "string",
+                "shift_info": "string",
+                "social_insurance": "string",
+                "uniform": "string",
+                "work_content": "string",
+                "work_env": "string",
+                "work_hours": "string"
+              },
+              "base_sections": {},
+              "city_name": "string",
+              "contact_phone": "string",
+              "coordinates": "string",
+              "created_at": "string",
+              "district": "string",
+              "experience": "string",
+              "gender": "string",
+              "health_cert": "string",
+              "height_require": "string",
+              "id": "number",
+              "image_url": "string",
+              "interview_days": {
+                "__kind": "array",
+                "__len": "empty",
+                "item": "undefined"
+              },
+              "interview_points": {
+                "__kind": "array",
+                "__len": "empty",
+                "item": "undefined"
+              },
+              "interview_time": "string",
+              "is_active": "boolean",
+              "is_featured": "number",
+              "job_type": "string",
+              "position_name": "string",
+              "recruiter_id": "string",
+              "sort_order": "number",
+              "store_address": "string",
+              "store_coordinates": "string",
+              "store_name": "string",
+              "updated_at": "string"
+            }
+          },
+          "total": "number"
+        },
+        "detail": null
+      },
+      "diffs": [
+        "items.item.base_sections.checkin_guide: missing locally",
+        "items.item.base_sections.dorm_env: missing locally",
+        "items.item.base_sections.factory_env: missing locally",
+        "items.item.base_sections.interview_notice: missing locally",
+        "items.item.base_sections.luggage_question: missing locally",
+        "items.item.base_sections.meal_dorm: missing locally",
+        "items.item.base_sections.medical_fee: missing locally",
+        "items.item.base_sections.positions: missing locally",
+        "items.item.base_sections.registration_form: missing locally",
+        "items.item.base_sections.requirements: missing locally",
+        "items.item.base_sections.salary_ask: missing locally",
+        "items.item.base_sections.salary_detail: missing locally",
+        "items.item.base_sections.shift_info: missing locally",
+        "items.item.base_sections.social_insurance: missing locally",
+        "items.item.base_sections.uniform: missing locally",
+        "items.item.base_sections.work_content: missing locally",
+        "items.item.base_sections.work_env: missing locally",
+        "items.item.base_sections.work_hours: missing locally",
+        "items.item.interview_days.__len.: non-empty != empty",
+        "items.item.interview_days.item.: string != undefined",
+        "items.item.interview_points.__len.: non-empty != empty",
+        "items.item.interview_points.item.: [object Object] != undefined",
+        "items.item.is_featured.: boolean != number"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/settings/sync",
+      "target": {
+        "status": 504,
+        "shape": {
+          "detail": "string"
+        },
+        "detail": "Agent 请求超时：http://47.107.245.246:8091"
+      },
+      "local": {
+        "status": 200,
+        "shape": {
+          "success": "boolean",
+          "synced": {
+            "__kind": "array",
+            "__len": "empty",
+            "item": "undefined"
+          }
+        },
+        "detail": null
+      },
+      "diffs": [
+        "status 504 != 200"
+      ]
+    }
+  ]
+}

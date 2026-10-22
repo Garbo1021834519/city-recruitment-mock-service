@@ -1,0 +1,196 @@
+{
+  "generated_at": "2026-10-21T07:03:25.566Z",
+  "source_file": "过程文件\\raw-assets\\index-BGyFQL9Q.js",
+  "routes": [
+    {
+      "path": "/login",
+      "name": "login",
+      "chunk": "LoginView-C_4Zg0lI.js"
+    },
+    {
+      "path": "/account-summary",
+      "name": "account-summary",
+      "chunk": "AccountSummaryView-DU95QU8K.js"
+    },
+    {
+      "path": "/m",
+      "name": "m-chat",
+      "chunk": "MobileChatView-34iGCbF3.js"
+    },
+    {
+      "path": "/",
+      "name": null,
+      "chunk": "MainLayout-D0ilcEhw.js"
+    },
+    {
+      "path": "cities",
+      "name": "cities",
+      "chunk": "DashboardView-QKpRJlq0.js"
+    },
+    {
+      "path": "cities/create",
+      "name": "city-create",
+      "chunk": "CityCreateView-DJQZDBHB.js"
+    },
+    {
+      "path": "cities/:id/edit",
+      "name": "city-edit",
+      "chunk": "CityEditView-C7SYxTug.js"
+    },
+    {
+      "path": "factories",
+      "name": "factories",
+      "chunk": "FactoryView-B_9fws_9.js"
+    },
+    {
+      "path": "factories/create",
+      "name": "factory-create",
+      "chunk": "FactoryCreateView-CIrF6OdD.js"
+    },
+    {
+      "path": "factories/:id/edit",
+      "name": "factory-edit",
+      "chunk": "FactoryEditView-lbLs-ZJB.js"
+    },
+    {
+      "path": "service-positions",
+      "name": "service-positions",
+      "chunk": "ServicePositionView-B4zcaJq3.js"
+    },
+    {
+      "path": "service-positions/create",
+      "name": "service-position-create",
+      "chunk": "ServicePositionCreateView-NhfS4a8r.js"
+    },
+    {
+      "path": "service-positions/:id/edit",
+      "name": "service-position-edit",
+      "chunk": "ServicePositionEditView-CXAFaCI-.js"
+    },
+    {
+      "path": "holiday-schedules",
+      "name": "holiday-schedules",
+      "chunk": "HolidayScheduleView-CNYSkNE4.js"
+    },
+    {
+      "path": "city-links",
+      "name": "city-links",
+      "chunk": "CityLinkView-B6uUnvRz.js"
+    },
+    {
+      "path": "recruiters",
+      "name": "recruiters",
+      "chunk": "RecruiterView-C4SdZHf2.js"
+    },
+    {
+      "path": "recruiters/create",
+      "name": "recruiter-create",
+      "chunk": "RecruiterCreateView-C9qT55YB.js"
+    },
+    {
+      "path": "recruiters/:id/edit",
+      "name": "recruiter-edit",
+      "chunk": "RecruiterEditView-D_5DpBb6.js"
+    },
+    {
+      "path": "settings",
+      "name": "settings",
+      "chunk": "SettingsView-CRC-Lwxj.js"
+    },
+    {
+      "path": "knowledge",
+      "name": "knowledge",
+      "chunk": "KnowledgeView-Bjlfo6nK.js"
+    },
+    {
+      "path": "knowledge/create",
+      "name": "knowledge-create",
+      "chunk": "KnowledgeCreateView-jWf_trJC.js"
+    },
+    {
+      "path": "knowledge/:id/edit",
+      "name": "knowledge-edit",
+      "chunk": "KnowledgeEditView-D4vGca1u.js"
+    },
+    {
+      "path": "unknown-questions",
+      "name": "unknown-questions",
+      "chunk": "UnknownQuestionsView-gb9HLz-h.js"
+    },
+    {
+      "path": "users",
+      "name": "users",
+      "chunk": "UserView-DRk-CQqE.js"
+    },
+    {
+      "path": "agent-devices",
+      "name": "agent-devices",
+      "chunk": "AgentDeviceView-Dkwt3RFU.js"
+    },
+    {
+      "path": "conversations",
+      "name": "conversations",
+      "chunk": "ConversationView-o6v-Nk0t.js"
+    },
+    {
+      "path": "candidates",
+      "name": "candidates",
+      "chunk": "CandidateView-BqRni_qH.js"
+    },
+    {
+      "path": "agent-rules",
+      "name": "agent-rules",
+      "chunk": "AgentRulesView-4IPsrO3N.js"
+    },
+    {
+      "path": "agent-evaluations",
+      "name": "agent-evaluations",
+      "chunk": "AgentEvaluationView-CWXPeyd8.js"
+    },
+    {
+      "path": "old-friends",
+      "name": "old-friends",
+      "chunk": "OldFriendView-DhlrZV73.js"
+    },
+    {
+      "path": "status-dashboard",
+      "name": "status-dashboard",
+      "chunk": "StatusDashboardView-CI6rL9RZ.js"
+    },
+    {
+      "path": "activation",
+      "name": "activation-dashboard",
+      "chunk": "ActivationDashboardView-DbEe7Baq.js"
+    },
+    {
+      "path": "activation/today",
+      "name": "activation-today",
+      "chunk": "ActivationTodayView-CQjDXRuv.js"
+    },
+    {
+      "path": "activation/customer/:id",
+      "name": "activation-customer",
+      "chunk": "ActivationCustomerView-C2GPXx0f.js"
+    },
+    {
+      "path": "activation/strategies",
+      "name": "activation-strategies",
+      "chunk": "ActivationStrategiesView-Bvovrr6d.js"
+    },
+    {
+      "path": "activation/devices",
+      "name": "activation-devices",
+      "chunk": "ActivationDevicesView-CrsZEBrQ.js"
+    },
+    {
+      "path": "activation/scripts",
+      "name": "activation-scripts",
+      "chunk": "ActivationScriptsView-C28pb6os.js"
+    },
+    {
+      "path": "recruiter-featured",
+      "name": "recruiter-featured",
+      "chunk": "RecruiterFeaturedView-CDTOnpiF.js"
+    }
+  ]
+}
