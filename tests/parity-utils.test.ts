@@ -28,6 +28,15 @@ describe("parity utilities", () => {
       localStatus: 200,
       diffs: ["items.item.keywords.__len.: empty != non-empty", "items.item.keywords.item.: undefined != string"],
     })).toBe("data-dependent");
+    expect(classifyParity({
+      targetStatus: 200,
+      localStatus: 200,
+      diffs: [
+        "daily_trend.__len.: non-empty != empty",
+        "daily_trend.item.: [object Object] != undefined",
+        "state_distribution.active: extra locally",
+      ],
+    })).toBe("data-dependent");
     expect(classifyParity({ targetStatus: 200, localStatus: 200, diffs: ["districts.北京: missing locally"] })).toBe("data-dependent");
     expect(classifyParity({ targetStatus: 200, localStatus: 200, diffs: ["items.name: missing locally"] })).toBe("partial");
     expect(classifyParity({ targetStatus: 200, localStatus: 200, diffs: ["items.item.name: missing locally"] })).toBe("partial");

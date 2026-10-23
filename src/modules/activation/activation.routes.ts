@@ -3,8 +3,17 @@ import type { DatabaseSync } from "node:sqlite";
 import { parsePagination } from "../../shared/pagination.js";
 import { evaluateActivationRule, summarizeActivationRule, type ActivationRuleContext, type ActivationStrategyCode } from "./activation.rules.js";
 import { ACTIVATION_STRATEGY_DEFAULTS, activationStrategyDefault, isActivationStrategyCode, type ActivationStrategyDefinition } from "./activation.strategies.js";
+import { JobExecutor, Scheduler } from "../scheduler/scheduler.js";
+import { JobStore } from "../scheduler/job-store.js";
+import { ActivationJobService } from "./activation.jobs.js";
 
 export async function registerActivationRoutes(app: FastifyInstance, db: DatabaseSync) {
+  const jobClock = { now: () => new Date() };
+  const jobStore = new JobStore(db, jobClock);
+  const jobScheduler = new Scheduler(jobStore, jobClock);
+  const activationJobs = new ActivationJobService(db, jobStore, jobClock);
+  const jobExecutor = new JobExecutor();
+  activationJobs.registerExecutors(jobExecutor);
   type RuntimeStrategy = Omit<ActivationStrategyDefinition, "config" | "enabled"> & Record<string, unknown> & { enabled: boolean };
   const readStrategyConfig = (code: ActivationStrategyCode) => {
     const definition = activationStrategyDefault(code) as ActivationStrategyDefinition;
@@ -51,6 +60,14 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
   app.get("/api/v1/activation/dashboard/population", async () => ["no_reply", "date_trigger", "misjudge", "paused"].map((code, index) => ({ name: ["A策略·无回复激活", "B策略·到期提醒", "C策略·误判捞回", "D策略·暂停求职"][index], value: Number((db.prepare("SELECT COUNT(*) count FROM activation_records WHERE strategy=?").get(code) as { count: number }).count) })));
   app.get("/api/v1/activation/dashboard/strategy-effect", async () => ["no_reply", "date_trigger", "misjudge", "paused"].map((code) => ({ code, sent: 0, replied: 0, rate: 0, good: false })));
   app.get("/api/v1/activation/dashboard/feed", async () => ({ items: [] }));
+  app.post<{ Body: { strategy?: string } }>("/api/v1/activation/scheduler/run", async (request, reply) => {
+    if (request.auth?.role !== "admin") return reply.code(403).send({ detail: "Admin required to run activation scheduler" });
+    const strategy = typeof request.body?.strategy === "string" && isActivationStrategyCode(request.body.strategy) ? request.body.strategy : undefined;
+    if (request.body?.strategy && !strategy) return reply.code(422).send({ detail: "Unknown activation strategy" });
+    const job = activationJobs.enqueueScan(strategy);
+    const result = await jobScheduler.runOnce(`http-admin-${request.id}`, (claimed) => jobExecutor.execute(claimed));
+    return { job_id: job.id, result };
+  });
   // Target shape: {auto_review, freeze_days, paused, schedule_time} — booleans,
   // and no daily_limit. SQLite stores the flags as 0/1, hence the Boolean() casts.
   const readActivationConfig = () => {

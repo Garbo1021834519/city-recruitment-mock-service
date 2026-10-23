@@ -1,4 +1,4 @@
-import { JobStore, type Clock, type JobRecord } from "./job-store.js";
+import type { Clock, JobBackend, JobRecord } from "./job-store.js";
 
 export interface SchedulerOptions { baseBackoffMs?: number; maxBackoffMs?: number; lockTtlMs?: number }
 export type JobHandler = (job: JobRecord) => Promise<void> | void;
@@ -27,7 +27,7 @@ export interface RunResult {
 export class Scheduler {
   private readonly options: Required<SchedulerOptions>;
 
-  constructor(private readonly store: JobStore, private readonly clock: Clock, options: SchedulerOptions = {}) {
+  constructor(private readonly store: JobBackend, private readonly clock: Clock, options: SchedulerOptions = {}) {
     this.options = { baseBackoffMs: options.baseBackoffMs ?? 1_000, maxBackoffMs: options.maxBackoffMs ?? 300_000, lockTtlMs: options.lockTtlMs ?? 30_000 };
   }
 

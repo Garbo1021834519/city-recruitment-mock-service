@@ -76,7 +76,7 @@
 
 **Acceptance:** 任务不会重复领取；失败按指数退避；超过最大次数进入 dead-letter 状态；进程重启后未完成任务可恢复；用 fake clock 测试而不是等待真实时间。
 
-**Implementation evidence (2026-10-24):** Migration 008 adds `jobs`, `job_attempts`, and `job_locks`. `JobStore` and `Scheduler` implement transactional claim/reclaim/success/retry/dead-letter flows with injectable Clock, and `JobExecutor` provides typed kind dispatch. Eight focused scheduler/database tests pass. The core scheduler is verified; activation scan and message-send handlers are intentionally not wired yet.
+**Implementation evidence (2026-10-24):** Migration 008 adds `jobs`, `job_attempts`, and `job_locks`. `JobStore` and `Scheduler` implement transactional claim/reclaim/success/retry/dead-letter flows with injectable Clock, `JobExecutor` provides typed kind dispatch, and `JobBackend` reserves a Redis/Celery adapter boundary. `ActivationJobService` wires `activation.scan` to the four rule strategies and `message.send` to idempotent local agent-message delivery. An admin-only manual trigger is available at `POST /api/v1/activation/scheduler/run`. Business and scheduler tests pass; Phase 4 read-only parity is 47 verified, 14 data-dependent, 0 partial and 0 target-internal failures.
 
 ## Phase 5: DifyProvider
 

@@ -119,8 +119,11 @@ npm run dev
 - `JobStore` 负责入队、到期领取、过期锁回收、成功、失败、重试、dead-letter 和命名锁；所有状态转移使用 SQLite 事务。
 - `Scheduler` 使用可注入 Clock，支持指数退避；`JobExecutor` 以 kind 注册处理器，未知 kind 会进入可重试失败路径。
 - 调度器测试覆盖：单次领取互斥、重试退避、成功、dead-letter、进程重启后锁回收、命名 leader 锁和 typed executor，共 6 个行为测试；数据库迁移回归通过。
-- 当前 Phase 4 尚未接入激活扫描业务或真实 Dify provider；本阶段只完成可靠任务基础设施。
-- Phase 4 状态：`verified-core`。下一步是把激活名单生成和消息发送接入任务 executor，再进入 Phase 5 DifyProvider。
+- 已接入 `activation.scan` 和 `message.send`：扫描四种规则快照生成幂等 `activation_records`；开启自动审核时创建发送任务；发送任务写入本地 `agent_messages` 并更新激活记录，重复任务不会重复发送。
+- 新增 admin-only `POST /api/v1/activation/scheduler/run` 作为本地手动调度入口；`JobBackend` 接口为 Redis/Celery 适配保留边界，当前实现仍是 SQLite。
+- 业务接线测试覆盖扫描幂等、自动审核、任务发送、重复消息保护和 HTTP 触发，共 4 个测试；调度器/数据库测试 8 个通过。
+- Phase 4 只读 GET parity：61 条，47 `verified`、14 `data-dependent`、0 `partial`、0 `target-internal-failure`。新增 data-dependent 项为本地激活记录/动态 dashboard 集合，不是结构差异。
+- Phase 4 状态：`verified`。下一步进入 Phase 5 `DifyProvider`。
 
 ## 复杂业务第二轮验收（2026-10-21）
 

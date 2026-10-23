@@ -63,7 +63,7 @@ export function classifyParity(result: ParityResult): "verified" | "partial" | "
   const dataOnly = result.diffs.every((diff) =>
     diff.includes("__len.")
     || /(?:^|\.)item\.: (?:\[object Object\] != undefined|undefined != \[object Object\]|string != undefined|undefined != string)$/.test(diff)
-    || /^(?:districts|default_districts|links)\.[^.]+: (?:missing|extra) locally$/.test(diff));
+    || /^(?:districts|default_districts|links|state_distribution)\.[^.]+: (?:missing|extra) locally$/.test(diff));
   if (dataOnly) return "data-dependent";
   return "partial";
 }

@@ -36,11 +36,21 @@ export interface AttemptRecord {
   error: string | null;
 }
 
+/**
+ * Backend boundary for future Redis/Celery adapters. The SQLite JobStore is
+ * the current implementation; Scheduler only depends on this contract.
+ */
+export interface JobBackend {
+  claimNext(owner: string, lockTtlMs?: number): JobRecord | null;
+  succeed(jobId: number, owner: string): JobRecord;
+  fail(jobId: number, owner: string, error: unknown, baseBackoffMs?: number, maxBackoffMs?: number): { job: JobRecord; dead: boolean; next_run_at: string | null };
+}
+
 type JobRow = Omit<JobRecord, "payload"> & { payload_json: string };
 
 function iso(value: Date): string { return value.toISOString(); }
 
-export class JobStore {
+export class JobStore implements JobBackend {
   constructor(private readonly db: DatabaseSync, private readonly clock: Clock) {}
 
   enqueue(input: EnqueueInput): JobRecord {
