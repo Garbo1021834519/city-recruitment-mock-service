@@ -17,6 +17,9 @@ function resourceNames(text) {
   const values = new Set();
   for (const match of text.matchAll(/(?:import\(|(?:src|href)=)["'](?:\.\/)?([^"']+\.(?:js|css|png|svg|ico|woff2?|ttf|webp))(?:["')?])/gi)) values.add(match[1]);
   for (const match of text.matchAll(/\.\/([A-Za-z0-9_./-]+\.(?:js|css|png|svg|ico|woff2?|ttf|webp))/gi)) values.add(match[1]);
+  // Vite's preload dependency table stores lazy assets as `assets/file.css`
+  // strings without a leading `./`; include those CSS/JS entries as well.
+  for (const match of text.matchAll(/["']assets\/([A-Za-z0-9_.-]+\.(?:js|css|png|svg|ico|woff2?|ttf|webp))["']/gi)) values.add(match[1]);
   return [...values]
     .map((x) => x.replace(/^\/+/, "").replace(/^assets\//, ""))
     .filter((x) => !x.includes(".."));

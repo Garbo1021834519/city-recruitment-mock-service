@@ -3,6 +3,7 @@ import { scryptSync, randomBytes } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { openDatabase } from "./connection.js";
 import { migrateDatabase } from "./migrate.js";
+import { ACTIVATION_STRATEGY_DEFAULTS } from "../modules/activation/activation.strategies.js";
 
 export function hashPassword(password: string, salt = randomBytes(16).toString("hex")): string {
   return `${salt}:${scryptSync(password, salt, 64).toString("hex")}`;
@@ -55,6 +56,8 @@ export function seedDatabase(db: DatabaseSync): void {
   }
   db.prepare("INSERT OR IGNORE INTO old_friend_records(id,account,customer_id,nickname,device_code,status) VALUES (9001,'mock-account-1','mock-c1','示例老友A','mock-device-1','active')").run();
   db.prepare("INSERT OR IGNORE INTO activation_strategies(id,strategy_name) VALUES (1,'本地示例策略')").run();
+  const insertActivationStrategy = db.prepare("INSERT OR IGNORE INTO activation_strategy_rules(code,enabled,config_json) VALUES (?,?,?)");
+  for (const strategy of ACTIVATION_STRATEGY_DEFAULTS) insertActivationStrategy.run(strategy.code, strategy.enabled ? 1 : 0, JSON.stringify(strategy.config));
   db.prepare("INSERT OR IGNORE INTO activation_config(id) VALUES (1)").run();
   db.prepare("INSERT OR IGNORE INTO activation_devices(id,device_name,status,data_json) VALUES (1,'本地示例设备','enabled','{}')").run();
   db.prepare("INSERT OR IGNORE INTO agent_devices(id,device_name,status,data_json) VALUES (1,'本地示例设备','enabled','{}')").run();

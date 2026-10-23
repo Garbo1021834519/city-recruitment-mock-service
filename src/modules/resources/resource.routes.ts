@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type { DatabaseSync } from "node:sqlite";
 import { parsePagination } from "../../shared/pagination.js";
+import { serializeAccountSummary, serializeEvaluationOverview, serializeRecruiter } from "../../shared/response-serializers.js";
 
 type Resource = { table: string; name: string; fields: string[] };
 const resources: Resource[] = [
@@ -14,7 +15,7 @@ const resources: Resource[] = [
   { table: "activation_devices", name: "activation/device-resources", fields: ["device_name", "status"] },
 ];
 
-function toOutput(row: Record<string, unknown>, resource?: Resource) {
+function toOutput(row: Record<string, unknown>, resource?: Resource, db?: DatabaseSync) {
   const data = typeof row.data_json === "string" ? JSON.parse(row.data_json) : {};
   const { data_json: _data, ...base } = row;
   const result = { ...base, ...data } as Record<string, unknown>;
@@ -31,8 +32,17 @@ function toOutput(row: Record<string, unknown>, resource?: Resource) {
       updated_at: result.updated_at,
     };
   }
+  if (resource?.name === "unknown-questions") {
+    result.status = row.status;
+    delete result.converted_knowledge_id;
+    delete result.converted_at;
+  }
   if (resource?.name === "activation/scripts") { result.content = result.content ?? result.script_name; result.category = result.category ?? data.category ?? "寒暄召回"; result.is_active = result.is_active ?? result.status === "enabled"; result.used_count = result.used_count ?? 0; }
-  if (resource?.name === "recruiters") { result.recruiter_id = result.recruiter_id ?? result.username; result.name = result.name ?? result.username; result.recruiter_type = result.recruiter_type ?? "service"; result.is_active = result.is_active ?? result.status === "enabled"; result.city_count = result.city_count ?? 0; result.cities = result.cities ?? []; result.password_set = false; }
+  if (resource?.name === "recruiters") {
+    const recruiterId = Number(result.id);
+    const cities = db ? db.prepare("SELECT rc.city_id,c.city_name,rc.is_enabled,rc.sort_order FROM recruiter_cities rc JOIN cities c ON c.id=rc.city_id WHERE rc.recruiter_id=? AND rc.is_service=0 ORDER BY rc.sort_order,c.city_name").all(recruiterId) as Array<Record<string, unknown>> : [];
+    return serializeRecruiter(row, cities);
+  }
   return result;
 }
 
@@ -65,10 +75,58 @@ function list(db: DatabaseSync, resource: Resource, query: Record<string, unknow
   const total = (db.prepare(`SELECT COUNT(*) AS count FROM ${resource.table}`).get() as { count: number }).count;
   const rows = db.prepare(`SELECT * FROM ${resource.table} ORDER BY id DESC LIMIT ? OFFSET ?`).all(pageSize, offset) as Array<Record<string, unknown>>;
   // Target list envelope is exactly {items, total} for these resources.
-  return { items: rows.map((row) => toOutput(row, resource)), total };
+  return { items: rows.map((row) => toOutput(row, resource, db)), total };
 }
 
 export async function registerResourceRoutes(app: FastifyInstance, db: DatabaseSync) {
+  app.post<{ Params: { id: string }; Body: { question: string; answer: string; keywords?: string[]; sort_order?: number; recruiter_id?: string } }>(
+    "/api/v1/unknown-questions/:id/convert",
+    async (request, reply) => {
+      const answer = request.body.answer;
+      if (typeof answer !== "string" || answer.trim() === "") {
+        return reply.code(422).send({ detail: "Answer cannot be empty" });
+      }
+
+      let transactionOpen = false;
+      try {
+        db.exec("BEGIN IMMEDIATE");
+        transactionOpen = true;
+        const id = Number(request.params.id);
+        const unknown = db.prepare("SELECT * FROM unknown_questions WHERE id=?").get(id) as Record<string, unknown> | undefined;
+        if (!unknown) {
+          db.exec("ROLLBACK");
+          transactionOpen = false;
+          return reply.code(404).send({ detail: "Unknown question not found" });
+        }
+        if (unknown.status !== "pending" || unknown.converted_knowledge_id !== null) {
+          db.exec("ROLLBACK");
+          transactionOpen = false;
+          return reply.code(409).send({ detail: "Unknown question already converted or is not pending" });
+        }
+
+        const question = request.body.question.trim() || String(unknown.question);
+        const keywords = Array.isArray(request.body.keywords)
+          ? request.body.keywords.filter((keyword): keyword is string => typeof keyword === "string").map((keyword) => keyword.trim()).filter(Boolean)
+          : [];
+        const sourceData = typeof unknown.data_json === "string" ? JSON.parse(unknown.data_json) as Record<string, unknown> : {};
+        const sortOrder = Number(request.body.sort_order ?? sourceData.sort_order ?? 0) || 0;
+        const recruiterId = String(request.body.recruiter_id ?? sourceData.recruiter_id ?? "");
+        const data = { question, keywords, is_active: true, sort_order: sortOrder, recruiter_id: recruiterId };
+        const knowledge = db.prepare("INSERT INTO knowledge_items(title,content,status,data_json) VALUES (?,?,?,?) RETURNING *")
+          .get(question, answer, "enabled", JSON.stringify(data)) as Record<string, unknown>;
+        const transition = db.prepare("UPDATE unknown_questions SET status='resolved',converted_knowledge_id=?,converted_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=? AND status='pending' AND converted_knowledge_id IS NULL")
+          .run(Number(knowledge.id), id);
+        if (transition.changes !== 1) throw new Error("Unknown question state changed during conversion");
+        db.exec("COMMIT");
+        transactionOpen = false;
+        return toOutput(knowledge, resources.find((resource) => resource.name === "knowledge"));
+      } catch {
+        if (transactionOpen) db.exec("ROLLBACK");
+        return reply.code(500).send({ detail: "Knowledge conversion failed" });
+      }
+    },
+  );
+
   for (const resource of resources) {
     const base = `/api/v1/${resource.name}`;
     app.get<{ Querystring: Record<string, unknown> }>(base, async (request) => {
@@ -80,7 +138,7 @@ export async function registerResourceRoutes(app: FastifyInstance, db: DatabaseS
       }
       return result;
     });
-    app.get<{ Params: { id: string } }>(`${base}/:id`, async (request, reply) => { const row = db.prepare(`SELECT * FROM ${resource.table} WHERE id=?`).get(Number(request.params.id)) as Record<string, unknown> | undefined; return row ? toOutput(row, resource) : reply.code(404).send({ detail: "记录不存在" }); });
+    app.get<{ Params: { id: string } }>(`${base}/:id`, async (request, reply) => { const row = db.prepare(`SELECT * FROM ${resource.table} WHERE id=?`).get(Number(request.params.id)) as Record<string, unknown> | undefined; return row ? toOutput(row, resource, db) : reply.code(404).send({ detail: "记录不存在" }); });
     app.post<{ Body: Record<string, unknown> }>(base, async (request) => {
       const body = request.body ?? {};
       const columns = resource.fields.filter((field) => field !== "status" || body[field] !== undefined);
@@ -94,14 +152,14 @@ export async function registerResourceRoutes(app: FastifyInstance, db: DatabaseS
       });
       const placeholders = columns.map(() => "?").join(",");
       const result = db.prepare(`INSERT INTO ${resource.table}(${columns.join(",")},data_json) VALUES (${placeholders},?)`).run(...values, JSON.stringify(body));
-      return toOutput(db.prepare(`SELECT * FROM ${resource.table} WHERE id=?`).get(Number(result.lastInsertRowid)) as Record<string, unknown>, resource);
+      return toOutput(db.prepare(`SELECT * FROM ${resource.table} WHERE id=?`).get(Number(result.lastInsertRowid)) as Record<string, unknown>, resource, db);
     });
     app.put<{ Params: { id: string }; Body: Record<string, unknown> }>(`${base}/:id`, async (request, reply) => {
       const body = request.body ?? {};
       const assignments = resource.fields.map((field) => `${field}=COALESCE(?,${field})`).join(",");
       const values = resource.fields.map((field) => body[field] === undefined ? null : value(body, field));
       const result = db.prepare(`UPDATE ${resource.table} SET ${assignments},data_json=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`).run(...values, JSON.stringify(body), Number(request.params.id));
-      return result.changes ? toOutput(db.prepare(`SELECT * FROM ${resource.table} WHERE id=?`).get(Number(request.params.id)) as Record<string, unknown>, resource) : reply.code(404).send({ detail: "记录不存在" });
+      return result.changes ? toOutput(db.prepare(`SELECT * FROM ${resource.table} WHERE id=?`).get(Number(request.params.id)) as Record<string, unknown>, resource, db) : reply.code(404).send({ detail: "记录不存在" });
     });
     app.delete<{ Params: { id: string } }>(`${base}/:id`, async (request, reply) => { const result = db.prepare(`DELETE FROM ${resource.table} WHERE id=?`).run(Number(request.params.id)); return result.changes ? { success: true } : reply.code(404).send({ detail: "记录不存在" }); });
   }
@@ -159,14 +217,14 @@ export async function registerResourceRoutes(app: FastifyInstance, db: DatabaseS
   app.get("/api/v1/agent/followup-config", async () => { const row = db.prepare("SELECT value_json FROM agent_configs WHERE kind='followup' AND recruiter_id='global'").get() as { value_json: string } | undefined; return row ? JSON.parse(row.value_json) : { id: 0, recruiter_id: "global", enabled: false, interval_seconds: 300, max_count: 3, scripts: [] }; });
   app.post<{ Body: Record<string, unknown> }>("/api/v1/agent/followup-config", async (request) => { const body = request.body ?? {}; const value = { id: 0, recruiter_id: "global", enabled: Boolean(body.enabled), interval_seconds: Number(body.interval_seconds ?? 300), max_count: Number(body.max_count ?? 3), scripts: Array.isArray(body.scripts) ? body.scripts : [] }; db.prepare("INSERT INTO agent_configs(kind,recruiter_id,value_json) VALUES ('followup','global',?) ON CONFLICT(kind,recruiter_id) DO UPDATE SET value_json=excluded.value_json,updated_at=CURRENT_TIMESTAMP").run(JSON.stringify(value)); return value; });
   // Target shape: {days: number, items: array} — no per-status counters.
-  app.get<{ Querystring: { days?: string } }>("/api/v1/agent/evaluation/overview", async (request) => ({ days: Number(request.query.days ?? 7), items: [] }));
+  app.get<{ Querystring: { days?: string } }>("/api/v1/agent/evaluation/overview", async (request) => serializeEvaluationOverview({ days: Number(request.query.days ?? 7), items: [] }));
   app.get<{ Querystring: { device_code?: string; eval_date?: string } }>("/api/v1/agent/evaluation/detail", async (request) => ({ device_code: request.query.device_code ?? "", eval_date: request.query.eval_date ?? "", items: [] }));
   // Running an evaluation across devices is admin-only on the target.
   app.post<{ Querystring: { device_code?: string; eval_date?: string } }>("/api/v1/agent/evaluation/run", async (request, reply) => {
     if (request.auth?.role !== "admin") return reply.code(403).send({ detail: "Admin required to evaluate all devices" });
     return { success: true, device_code: request.query.device_code ?? "", eval_date: request.query.eval_date ?? new Date().toISOString().slice(0, 10), total: 0, invited: 0, failed: 0 };
   });
-  app.get<{ Querystring: Record<string, unknown> }>("/api/v1/agent/report/account-summary", async (request) => ({ prefix: request.query.prefix ?? "", date_range: { start: request.query.start_date ?? "", end: request.query.end_date ?? "" }, total: {}, accounts: [], daily_trend: [] }));
+  app.get<{ Querystring: Record<string, unknown> }>("/api/v1/agent/report/account-summary", async (request) => serializeAccountSummary({ prefix: request.query.prefix ?? "", date_range: { start: request.query.start_date ?? "", end: request.query.end_date ?? "" }, total: {}, accounts: [], daily_trend: [] }));
   app.post<{ Body: { ids?: number[]; status?: string; is_active?: boolean } }>("/api/v1/knowledge/batch/update", async (request) => { const ids = Array.isArray(request.body?.ids) ? request.body.ids : []; let updated = 0; for (const id of ids) { const result = db.prepare("UPDATE knowledge_items SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").run(request.body?.status ?? (request.body?.is_active === false ? "disabled" : "enabled"), Number(id)); updated += Number(result.changes); } return { success: true, updated }; });
   app.post<{ Body: { ids?: number[] } }>("/api/v1/knowledge/batch/delete", async (request) => { const ids = Array.isArray(request.body?.ids) ? request.body.ids : []; let deleted = 0; for (const id of ids) deleted += Number(db.prepare("DELETE FROM knowledge_items WHERE id=?").run(Number(id)).changes); return { success: true, deleted }; });
   // Target shape: {cities: array, unlimited: boolean} — no items envelope.

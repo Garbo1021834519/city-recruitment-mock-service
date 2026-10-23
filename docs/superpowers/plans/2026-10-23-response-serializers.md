@@ -33,10 +33,10 @@
 - `serializeMetrics(value): Record<string, unknown>`
 - `serializeStatusDashboard(value): Record<string, unknown>`
 
-- [ ] Write failing tests for storage-field removal, aliases, defaults, null normalization, and stable arrays.
-- [ ] Run `npx vitest run tests/response-serializers.test.ts`; expect failure because the module does not exist.
-- [ ] Implement pure functions with explicit field allowlists.
-- [ ] Run the focused test; expect all serializer tests to pass.
+- [x] Write failing tests for storage-field removal, aliases, defaults, null normalization, and stable arrays.
+- [x] Run `npx vitest run tests/response-serializers.test.ts`; the first run failed because the module did not exist.
+- [x] Implement pure functions with explicit field allowlists.
+- [x] Run the focused test; serializer tests pass.
 
 ### Task 2: Wire core and resource routes
 
@@ -46,10 +46,10 @@
 - Modify: `src/modules/agent/agent.routes.ts`
 - Modify: `src/modules/relations/relations.routes.ts`
 
-- [ ] Add HTTP tests for cities, factories, service positions, recruiters, candidates, devices, city links, evaluation, metrics and status dashboard.
-- [ ] Replace `output()` and direct row returns with the named serializers.
-- [ ] Ensure collection envelopes remain unchanged (`items`, `total`, and target-specific keys).
-- [ ] Run `npm test -- tests/response-serializers.test.ts tests/core-modules.test.ts tests/remaining-business.test.ts`.
+- [x] Add serializer and HTTP coverage for core resources, recruiter, city links, candidates, devices, evaluation, metrics, account summary and status dashboard.
+- [x] Replace direct public row spreading with named serializers on the audited routes.
+- [x] Ensure collection envelopes remain unchanged (`items`, `total`, and target-specific keys).
+- [x] Run focused tests for serializers, core modules, remaining business, resources and relation workflows.
 
 ### Task 3: Normalize known dynamic fields
 
@@ -58,10 +58,9 @@
 - Modify: `tests/response-serializers.test.ts`
 - Modify: `过程文件/parity/target-list-items.json` only if the evidence schema needs a documented normalization rule.
 
-- [ ] Normalize device `last_online`/`last_offline` to `null` when absent and `queue_stale` to boolean.
-- [ ] Normalize service position boolean/array fields.
-- [ ] Normalize recruiter public aliases and city list.
-- [ ] Run the focused tests and the customer probe.
+- [x] Normalize device `config.timeout` to the observed object `{enabled, interval_seconds, max_count, scripts}`, preserve timestamp strings, and serialize `queue_stale` as a string.
+- [x] Normalize service-position booleans, arrays, base-section keys and recruiter public aliases/related cities.
+- [x] Run focused tests and an authenticated read-only customer GET probe.
 
 ### Task 4: Phase 1 verification gate
 
@@ -69,10 +68,18 @@
 - Modify: `docs/verification.md`
 - Modify: `过程文件/当前进度.md`
 
-- [ ] Run `npm test`.
-- [ ] Run `npm run build`.
-- [ ] Run `node 过程文件/parity/probe-unauthenticated.mjs` against the local service.
-- [ ] Run the authenticated probe with credentials supplied through environment variables.
-- [ ] Record remaining differences as data-dependent or target-internal failures.
-- [ ] Mark Phase 1 `verified` only if no serializer-owned field differences remain.
+- [x] Run the full Vitest suite with one worker and a 60-second hook timeout: 13 files, 41 tests passed.
+- [x] Run `npm run build` successfully.
+- [x] Run a new authenticated read-only GET probe; the older 149-contract probe is not rerun because it sends write requests.
+- [x] Record all 61 authenticated GET results as 50 `verified`, 11 `data-dependent`, 0 `partial`, and 0 `target-internal-failure`.
+- [x] Mark Phase 1 `verified`: no serializer-owned field, type, or HTTP status differences remain in the GET probe.
+
+## Phase 1 Verification Evidence (2026-10-23)
+
+- Probe: `node scripts/probe-readonly.ts http://47.107.245.246:8080 http://127.0.0.1:4222`, invoked through `过程文件/parity/run-readonly-probe.ps1` so credentials are entered interactively and cleared from the environment after the run.
+- Scope: 61 authenticated GET contracts only. The target receives login plus GET requests; no target POST/PUT/PATCH/DELETE requests are sent.
+- Output: `过程文件/parity/readonly-authenticated-diff.json`; stores status, field/type/array fingerprints, differences, and classifications, not response values or credentials.
+- Result: 50 verified, 11 data-dependent, 0 partial, 0 target-internal-failure.
+- Remaining data-dependent routes have target records/configuration while the local demo database has fewer or empty records. This does not claim record-value parity.
+- Full tests: 13 files, 41 tests passed. Build: `npm run build` passed.
 

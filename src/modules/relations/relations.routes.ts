@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type { DatabaseSync } from "node:sqlite";
 import { parsePagination } from "../../shared/pagination.js";
+import { serializeCityLinks } from "../../shared/response-serializers.js";
 
 export async function registerRelationRoutes(app: FastifyInstance, db: DatabaseSync) {
   // Target 404s with "City not found" when the city is missing, then returns
@@ -31,16 +32,16 @@ export async function registerRelationRoutes(app: FastifyInstance, db: DatabaseS
   });
   // Target shape: {districts: object, links: object} — no items/total envelope.
   app.get("/api/v1/city-links", async () => {
-    const rows = db.prepare("SELECT city_id,linked_city_id FROM city_links ORDER BY city_id,linked_city_id").all() as Array<{ city_id: number; linked_city_id: number }>;
-    const links: Record<string, number[]> = {};
-    for (const row of rows) (links[String(row.city_id)] ??= []).push(row.linked_city_id);
+    const rows = db.prepare("SELECT source.city_name AS city, target.city_name AS linked_city FROM city_links l JOIN cities source ON source.id=l.city_id JOIN cities target ON target.id=l.linked_city_id ORDER BY source.city_name,target.city_name").all() as Array<{ city: string; linked_city: string }>;
+    const links: Record<string, string[]> = {};
+    for (const row of rows) (links[row.city] ??= []).push(row.linked_city);
     const cityRows = db.prepare("SELECT city_name,data_json FROM cities ORDER BY city_name").all() as Array<{ city_name: string; data_json: string }>;
     const districts: Record<string, string[]> = {};
     for (const city of cityRows) {
       const data = typeof city.data_json === "string" ? JSON.parse(city.data_json) : {};
       districts[city.city_name] = Array.isArray(data.districts) ? data.districts : [];
     }
-    return { districts, links };
+    return serializeCityLinks({ districts, links });
   });
   // Target responds 201 {saved: n} — the count of links actually written.
   app.post<{ Body: { city_id?: number; linked_city_ids?: number[] } }>("/api/v1/city-links/batch", async (request, reply) => {

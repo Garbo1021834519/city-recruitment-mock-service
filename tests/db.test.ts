@@ -11,6 +11,7 @@ describe("SQLite migrations and seed", () => {
     const before = db.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all() as Array<{ name: string }>;
     expect(before.map((row) => row.name)).toEqual(expect.arrayContaining([
       "users", "cities", "factories", "service_positions", "knowledge_items", "activation_strategies",
+      "jobs", "job_attempts", "job_locks",
     ]));
     seedDatabase(db);
     const first = (db.prepare("SELECT COUNT(*) AS count FROM users").get() as { count: number }).count;

@@ -1,6 +1,6 @@
 # 本地还原验证记录
 
-更新时间：2026-10-21
+更新时间：2026-10-23
 
 ## 已验证
 
@@ -81,6 +81,46 @@ npm run dev
 - 激活仪表盘：提供待审核、已发送、回复率、冷冻数量、趋势和策略效果。
 
 目标站真实响应字段来源记录在 `过程文件/remaining-response-shapes.json`；抓包中的设备密钥、客户数据和令牌已删除。
+
+## Response Serializer Phase 1 验收（2026-10-23）
+
+- 新增独立响应 serializer，覆盖城市、工厂、服务岗位、招聘员、候选人、Agent 设备、城市关联、评估概览、指标、状态看板和账号汇总。
+- 修正字段契约：服务岗位 `base_sections` 固定 18 个字符串键；招聘员关联城市返回目标字段；城市关联用城市名作键、城市名字符串作值；账号汇总补齐 7 个数值指标。
+- 新增只读认证 GET parity 探针 `scripts/probe-readonly.ts`。通过 `过程文件/parity/run-readonly-probe.ps1` 交互输入目标账号；目标端只接收登录和 GET，不执行写接口。报告只保存响应结构指纹，不保存响应值或令牌。
+- 61 条 GET 结果：50 `verified`，11 `data-dependent`，0 `partial`，0 `target-internal-failure`。数据依赖差异来自目标真实记录/配置和本地演示 SQLite 数据量不同，不代表业务数据完全一致。
+- 本次完整验证：13 个测试文件、41 个测试通过；`npm run build` 通过。
+- 基线证据：`过程文件/parity/readonly-authenticated-diff-phase1.json`（使用新建空 SQLite 数据库重跑，避免后续转换测试数据污染 Phase 1 基线）。
+- Phase 1 状态：`verified`。Phase 2（`unknown-question -> knowledge-item` 转换闭环）可开始。
+
+## Unknown Question Conversion Phase 2 验收（2026-10-23）
+
+- 数据库迁移 006 为未知问题增加 `converted_knowledge_id`、`converted_at` 和关联索引；转换元数据不进入未知问题公开响应。
+- 转换接口 `POST /api/v1/unknown-questions/:id/convert` 在 SQLite `BEGIN IMMEDIATE` 事务内创建知识库条目并更新原问题状态为前端使用的 `resolved`。
+- 新建知识条目写入 `question`、`answer`、`keywords`、`sort_order`、`recruiter_id`，通过现有知识库 serializer 出现在 `/api/v1/knowledge`。
+- 不存在的问题返回 404；缺少/空白答案返回 422；已转换/非 pending 问题返回 409；知识插入失败或来源状态更新未实际生效时回滚整个事务。
+- API 测试覆盖转换可见性、关联 ID/时间、重复转换、缺 answer、404 和两种失败回滚；4/4 通过。浏览器在本地 `/unknown-questions` 点击“转知识库”，页面状态变为“已处理”，新条目及关键词出现在 `/knowledge`。
+- 完整验证：14 个测试文件、45 个测试通过；`npm run build` 通过。
+- Phase 2 完成后的只读 GET parity：61 条，48 `verified`、13 `data-dependent`、0 `partial`、0 `target-internal-failure`。新增的数据依赖差异为本地转换知识条目的非空关键词和未知问题测试记录；目标站没有进行任何写请求。
+- 证据：`过程文件/parity/readonly-authenticated-diff-phase2.json`。Phase 2 状态：`verified`。
+
+## Activation Rule Engine Phase 3 验收（2026-10-23）
+
+- 新增纯函数规则引擎 `src/modules/activation/activation.rules.ts`，统一输出 `{matched, reason, strategy, next_push_at, eligible}`，并将“规则命中”和“当前是否可执行”分开。
+- 四种策略已实现：`no_reply`（坐席最后发言后的沉默窗口和首次对话年龄）、`date_trigger`（邀约面试日期窗口且未签到）、`misjudge`（不符合事件后 72 小时内客户新消息）、`paused`（暂停意图话术和静默期）。
+- 新增迁移 007 的 `activation_strategy_rules` 表；策略按前端使用的 code 持久化，`PUT /api/v1/activation/strategies/:code` 和 `POST /api/v1/activation/strategies/:code/test` 共用同一规则配置和快照读取逻辑。
+- 覆盖停用策略、全局暂停、冷却期、未知 code、缺 customer_id、无匹配边界；规则与 API 测试共 10 个通过。策略预览页面用本地合成客户 ID 验证，显示可读的“激活依据”摘要，不发送消息。
+- 主体实现后的完整验证曾通过 16 个测试文件、55 个测试；类型修复后的新鲜定向验证为 5 个测试文件、27 个测试通过，`npm run build` 通过。之后两次全量重跑在本机 Node/Vitest 进程资源异常时卡在权限测试登录 helper（5 秒测试超时），未将其计为通过。
+- Phase 3 只读 GET parity：61 条，48 `verified`、13 `data-dependent`、0 `partial`、0 `target-internal-failure`。策略列表和 activation config 没有剩余结构差异。
+- 证据：`过程文件/parity/readonly-authenticated-diff-phase3.json`。Phase 3 状态：`verified`。Phase 4 SQLite 调度器尚未开始。
+
+## SQLite Scheduler Phase 4 验收（2026-10-24）
+
+- 新增迁移 008：`jobs`、`job_attempts`、`job_locks`，任务记录 kind、payload、run_at、attempts、max_attempts、last_error、locked_until、completed_at。
+- `JobStore` 负责入队、到期领取、过期锁回收、成功、失败、重试、dead-letter 和命名锁；所有状态转移使用 SQLite 事务。
+- `Scheduler` 使用可注入 Clock，支持指数退避；`JobExecutor` 以 kind 注册处理器，未知 kind 会进入可重试失败路径。
+- 调度器测试覆盖：单次领取互斥、重试退避、成功、dead-letter、进程重启后锁回收、命名 leader 锁和 typed executor，共 6 个行为测试；数据库迁移回归通过。
+- 当前 Phase 4 尚未接入激活扫描业务或真实 Dify provider；本阶段只完成可靠任务基础设施。
+- Phase 4 状态：`verified-core`。下一步是把激活名单生成和消息发送接入任务 executor，再进入 Phase 5 DifyProvider。
 
 ## 复杂业务第二轮验收（2026-10-21）
 

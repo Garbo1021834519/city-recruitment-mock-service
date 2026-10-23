@@ -13,6 +13,8 @@ describe("remaining relation and batch workflows", () => {
     const link = await app.inject({ method: "POST", url: "/api/v1/city-links/batch", headers: { authorization: `Bearer ${token}` }, payload: { city_id: 1, linked_city_ids: [2] } });
     expect(link.statusCode).toBe(201);
     expect(link.json()).toHaveProperty("saved");
+    const cityLinks = await app.inject({ method: "GET", url: "/api/v1/city-links", headers: { authorization: `Bearer ${token}` } });
+    expect(cityLinks.json().links).toMatchObject({ 广州: ["深圳"] });
     // The target 404s "Recruiter not found" for a missing recruiter, so the test
     // must create one first rather than assuming a seeded id.
     const created = await app.inject({ method: "POST", url: "/api/v1/recruiters", headers: { authorization: `Bearer ${token}` }, payload: { recruiter_id: "test-recruiter", name: "测试招聘员" } });

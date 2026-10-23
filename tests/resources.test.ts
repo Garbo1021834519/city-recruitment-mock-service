@@ -16,4 +16,14 @@ describe("resource modules", () => {
     // id, question, keywords, is_active, sort_order, recruiter_id, updated_at
     expect(list.json().items).toEqual(expect.arrayContaining([expect.objectContaining({ question: "测试知识" })]));
   });
+
+  it("serializes recruiter rows through the public field contract", async () => {
+    const list = await app.inject({ method: "GET", url: "/api/v1/recruiters", headers: { authorization: `Bearer ${token}` } });
+    expect(list.statusCode).toBe(200);
+    const item = list.json().items[0];
+    expect(item).toMatchObject({ recruiter_id: "mock-recruiter", recruiter_type: "service", cities: expect.any(Array), city_count: expect.any(Number), password_set: expect.any(Boolean) });
+    expect(item).not.toHaveProperty("username");
+    expect(item).not.toHaveProperty("city_id");
+    expect(item).not.toHaveProperty("data_json");
+  });
 });

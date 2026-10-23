@@ -1,8 +1,45 @@
 import type { FastifyInstance } from "fastify";
 import type { DatabaseSync } from "node:sqlite";
 import { parsePagination } from "../../shared/pagination.js";
+import { evaluateActivationRule, summarizeActivationRule, type ActivationRuleContext, type ActivationStrategyCode } from "./activation.rules.js";
+import { ACTIVATION_STRATEGY_DEFAULTS, activationStrategyDefault, isActivationStrategyCode, type ActivationStrategyDefinition } from "./activation.strategies.js";
 
 export async function registerActivationRoutes(app: FastifyInstance, db: DatabaseSync) {
+  type RuntimeStrategy = Omit<ActivationStrategyDefinition, "config" | "enabled"> & Record<string, unknown> & { enabled: boolean };
+  const readStrategyConfig = (code: ActivationStrategyCode) => {
+    const definition = activationStrategyDefault(code) as ActivationStrategyDefinition;
+    const row = db.prepare("SELECT config_json FROM activation_strategy_rules WHERE code=?").get(code) as { config_json: string } | undefined;
+    return row ? JSON.parse(row.config_json) as Record<string, unknown> : definition.config;
+  };
+  const readStrategy = (code: ActivationStrategyCode): RuntimeStrategy => {
+    const definition = activationStrategyDefault(code) as ActivationStrategyDefinition;
+    const row = db.prepare("SELECT enabled,config_json FROM activation_strategy_rules WHERE code=?").get(code) as { enabled: number; config_json: string } | undefined;
+    return { code, description: definition.description, trigger: definition.trigger, ...readStrategyConfig(code), enabled: row ? Boolean(row.enabled) : definition.enabled };
+  };
+  const publicStrategy = (strategy: ReturnType<typeof readStrategy>) => ({
+    code: strategy.code,
+    enabled: strategy.enabled,
+    description: strategy.description,
+    trigger: strategy.trigger,
+    daily_limit: Number(strategy.daily_limit ?? 20),
+    send_window: Array.isArray(strategy.send_window) ? strategy.send_window : ["09:00", "21:00"],
+    cooldown_days: Number(strategy.cooldown_days ?? 14),
+    auto_push: strategy.code === "no_reply" ? strategy.auto_push : null,
+    ...(strategy.code === "no_reply" ? { stale_days: strategy.stale_days, stale_days_max: strategy.stale_days_max } : {}),
+  });
+  const readStrategies = () => ACTIVATION_STRATEGY_DEFAULTS.map((strategy) => publicStrategy(readStrategy(strategy.code)));
+  const readRuleContext = (customerId: string, strategy: ActivationStrategyCode): ActivationRuleContext => {
+    const conversation = db.prepare("SELECT customer_id,device_code,state,recruit_status,created_at,last_msg_at FROM agent_conversations WHERE CAST(customer_id AS TEXT)=? ORDER BY updated_at DESC LIMIT 1")
+      .get(customerId) as Record<string, string | number | null> | undefined;
+    const messages = db.prepare(`SELECT device_code,customer_id,direction,content,created_at FROM agent_messages WHERE CAST(customer_id AS TEXT)=? ${conversation ? "AND device_code=?" : ""} ORDER BY created_at DESC,id DESC`)
+      .all(...(conversation ? [customerId, String(conversation.device_code)] : [customerId])) as Array<Record<string, string | number | null>>;
+    const candidateEvents = db.prepare("SELECT customer_id,event_type,event_at,interview_date,status,disqualified_reason FROM candidate_events WHERE customer_id=? ORDER BY event_at DESC,id DESC")
+      .all(customerId) as Array<Record<string, string | number | null>>;
+    const activation = db.prepare("SELECT created_at FROM activation_records WHERE CAST(customer_id AS TEXT)=? AND strategy=? ORDER BY id DESC LIMIT 1")
+      .get(customerId, strategy) as { created_at: string } | undefined;
+    return { conversation: conversation ?? null, messages, candidateEvents, lastActivationAt: activation?.created_at ?? null };
+  };
+
   app.get<{ Querystring: Record<string, unknown> }>("/api/v1/activation/records", async (request) => { const { page, pageSize, offset } = parsePagination(request.query); const rows = db.prepare("SELECT * FROM activation_records ORDER BY id DESC LIMIT ? OFFSET ?").all(pageSize, offset); const total = (db.prepare("SELECT COUNT(*) count FROM activation_records").get() as { count: number }).count; return { items: rows, total }; });
   app.get("/api/v1/activation/dashboard/stats", async () => {
     const today = new Date().toISOString().slice(0, 10);
@@ -29,32 +66,38 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
       return result.changes ? db.prepare("SELECT * FROM activation_records WHERE id=?").get(Number(request.params.id)) : reply.code(404).send({ detail: "激活记录不存在" });
     });
   }
-  app.get("/api/v1/activation/strategies", async () => ({ items: [
-    { code: "no_reply", enabled: true, description: "AI 最后回复后客户长期未再响应的沉淀客户", trigger: "最后一条为 AI 消息且沉默 1~3 天、首次对话在 10 天内", daily_limit: 200, send_window: ["09:00", "21:00"], cooldown_days: 14, auto_push: { enabled: true, offsets_days: [1, 2, 3] }, stale_days: 1, stale_days_max: 3 },
-    { code: "date_trigger", enabled: false, description: "已邀约/已提醒但面试日已过或临近未到场的客户", trigger: "面试日进入提醒窗口", daily_limit: 20, send_window: ["09:00", "21:00"], cooldown_days: 14, auto_push: null },
-    { code: "misjudge", enabled: false, description: "被判不符合但客户仍在主动说话，疑似误判", trigger: "判不符合后 72 小时内客户仍有新消息", daily_limit: 20, send_window: ["09:00", "21:00"], cooldown_days: 14, auto_push: null },
-    { code: "paused", enabled: false, description: "客户明确说先不考虑/过段时间等的暂缓求职者", trigger: "最后发言 ≥5 天且含暂停语", daily_limit: 20, send_window: ["09:00", "21:00"], cooldown_days: 14, auto_push: null },
-  ], engine: { schedule_time: "10:07", freeze_days: 14, auto_review: false } }));
+  app.get("/api/v1/activation/strategies", async () => {
+    const engine = readActivationConfig();
+    return { items: readStrategies(), engine: { auto_review: engine.auto_review, freeze_days: engine.freeze_days, schedule_time: engine.schedule_time } };
+  });
   app.get<{ Querystring: Record<string, unknown> }>("/api/v1/activation/scripts", async (request) => { const { page, pageSize, offset } = parsePagination(request.query); const rows = db.prepare("SELECT id,content,data_json,status,created_at,updated_at FROM activation_scripts ORDER BY id DESC LIMIT ? OFFSET ?").all(pageSize, offset) as Array<Record<string, unknown>>; const items = rows.map((row) => { const data = typeof row.data_json === "string" ? JSON.parse(row.data_json) : {}; return { id: row.id, content: row.content, category: data.category ?? "寒暄召回", is_active: row.status === "enabled", used_count: Number(data.used_count ?? 0), last_used_at: data.last_used_at ?? "", updated_at: row.updated_at }; }); const total = Number((db.prepare("SELECT COUNT(*) count FROM activation_scripts").get() as { count: number }).count); const active_total = Number((db.prepare("SELECT COUNT(*) count FROM activation_scripts WHERE status='enabled'").get() as { count: number }).count); return { items, total, active_total, categories: [...new Set(items.map((item) => item.category))] }; });
   app.get("/api/v1/activation/scripts/random", async () => {
     const row = db.prepare("SELECT id,content,data_json FROM activation_scripts WHERE status='enabled' ORDER BY RANDOM() LIMIT 1").get() as { id: number; content: string; data_json: string } | undefined;
     return row ? { id: row.id, content: row.content, category: JSON.parse(row.data_json).category ?? "寒暄召回" } : { detail: "语料库为空" };
   });
   app.put<{ Body: { paused?: boolean; schedule_time?: string; freeze_days?: number; auto_review?: boolean } }>("/api/v1/activation/config", async (request) => { const body = request.body ?? {}; db.prepare("UPDATE activation_config SET paused=COALESCE(?,paused),schedule_time=COALESCE(?,schedule_time),freeze_days=COALESCE(?,freeze_days),auto_review=COALESCE(?,auto_review),updated_at=CURRENT_TIMESTAMP WHERE id=1").run(typeof body.paused === "boolean" ? (body.paused ? 1 : 0) : null, typeof body.schedule_time === "string" ? body.schedule_time : null, typeof body.freeze_days === "number" ? body.freeze_days : null, typeof body.auto_review === "boolean" ? (body.auto_review ? 1 : 0) : null); return readActivationConfig(); });
-  // Both 404 with "策略不存在" when the strategy row is missing.
-  const strategyExists = (id: number) => Boolean(db.prepare("SELECT id FROM activation_strategies WHERE id=?").get(id));
   app.put<{ Params: { id: string }; Body: Record<string, unknown> }>("/api/v1/activation/strategies/:id", async (request, reply) => {
-    const id = Number(request.params.id);
-    if (!strategyExists(id)) return reply.code(404).send({ detail: "策略不存在" });
+    const code = request.params.id;
+    if (!isActivationStrategyCode(code)) return reply.code(404).send({ detail: "策略不存在" });
     const body = request.body ?? {};
-    db.prepare("UPDATE activation_strategies SET strategy_name=COALESCE(?,strategy_name),status=COALESCE(?,status),data_json=?,updated_at=CURRENT_TIMESTAMP WHERE id=?")
-      .run(typeof body.strategy_name === "string" ? body.strategy_name : null, typeof body.enabled === "boolean" ? (body.enabled ? "enabled" : "disabled") : null, JSON.stringify(body), id);
-    return db.prepare("SELECT id,strategy_name,status,data_json FROM activation_strategies WHERE id=?").get(id);
+    const current = readStrategy(code);
+    const config = { ...readStrategyConfig(code), ...Object.fromEntries(Object.entries(body).filter(([key]) => key !== "enabled")) };
+    const enabled = typeof body.enabled === "boolean" ? body.enabled : current.enabled;
+    db.prepare("INSERT INTO activation_strategy_rules(code,enabled,config_json) VALUES (?,?,?) ON CONFLICT(code) DO UPDATE SET enabled=excluded.enabled,config_json=excluded.config_json,updated_at=CURRENT_TIMESTAMP")
+      .run(code, enabled ? 1 : 0, JSON.stringify(config));
+    return publicStrategy(readStrategy(code));
   });
   app.post<{ Params: { id: string }; Body: { customer_id?: number } }>("/api/v1/activation/strategies/:id/test", async (request, reply) => {
-    const id = Number(request.params.id);
-    if (!strategyExists(id)) return reply.code(404).send({ detail: "策略不存在" });
-    return { success: true, strategy_id: id, customer_id: request.body?.customer_id ?? null, matched: false };
+    const code = request.params.id;
+    if (!isActivationStrategyCode(code)) return reply.code(404).send({ detail: "策略不存在" });
+    const rawCustomerId = request.body?.customer_id;
+    if (rawCustomerId === undefined || rawCustomerId === null || String(rawCustomerId).trim() === "") return reply.code(422).send({ detail: "customer_id is required" });
+    const customerId = String(rawCustomerId).trim();
+    const strategy = readStrategy(code);
+    const globallyPaused = Boolean((db.prepare("SELECT paused FROM activation_config WHERE id=1").get() as { paused: number } | undefined)?.paused);
+    const context = readRuleContext(customerId, code);
+    const evaluated = evaluateActivationRule({ strategy: code, context, config: { ...strategy, enabled: strategy.enabled }, globallyPaused });
+    return { success: true, strategy_id: code, customer_id: customerId, ...evaluated, summary: summarizeActivationRule(code, context, evaluated) };
   });
   app.put<{ Params: { id: string }; Body: Record<string, unknown> }>("/api/v1/activation/devices/:id", async (request, reply) => {
     // Target rejects non-admin device writes with 403 before any lookup.

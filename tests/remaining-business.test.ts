@@ -20,6 +20,9 @@ describe("remaining business workflows", () => {
     expect(created.statusCode).toBe(200);
     const list = await app.inject({ method: "GET", url: "/api/v1/agent/candidates?event_type=invited&page=1&page_size=50", headers: { authorization: `Bearer ${token}` } });
     expect(list.json().items).toEqual(expect.arrayContaining([expect.objectContaining({ nickname: "候选人A", status: "invited" })]));
+    expect(list.json().items[0]).toHaveProperty("wechat_id");
+    expect(list.json().items[0]).not.toHaveProperty("data_json");
+    expect(list.json().items[0]).not.toHaveProperty("updated_at");
     const marked = await app.inject({ method: "POST", url: `/api/v1/agent/candidates/${created.json().id}/mark?device_code=D-1`, headers: { authorization: `Bearer ${token}` }, payload: { status: "followed" } });
     expect(marked.json().status).toBe("followed");
   });
@@ -33,5 +36,9 @@ describe("remaining business workflows", () => {
     expect(evals.json()).toHaveProperty("days");
     const report = await app.inject({ method: "GET", url: "/api/v1/agent/report/account-summary?prefix=local", headers: { authorization: `Bearer ${token}` } });
     expect(report.json()).toHaveProperty("date_range");
+    const dashboard = await app.inject({ method: "GET", url: "/api/v1/agent/status/dashboard", headers: { authorization: `Bearer ${token}` } });
+    expect(dashboard.json().state_distribution).toMatchObject({ active: expect.any(Number), disqualified: expect.any(Number), waiting: expect.any(Number) });
+    const metrics = await app.inject({ method: "GET", url: "/api/v1/agent/report/metrics", headers: { authorization: `Bearer ${token}` } });
+    expect(metrics.json()).toMatchObject({ start_date: expect.any(String), end_date: expect.any(String), items: expect.any(Array) });
   });
 });

@@ -29,7 +29,7 @@
 - `servicePosition`: 显式输出 `base_sections`、`interview_days`、`interview_points`、`is_featured`，保证数组和数字类型稳定。
 - `recruiter`: 显式输出 `recruiter_id`、`name`、`description`、`llm_config`、`sort_order`、`cities`。
 - `candidate`: 输出目标字段，隐藏本地 `data_json` 和 `updated_at`，补齐 `wechat_id`。
-- `agentDevice`: 将配置字段统一为目标页面需要的类型，`last_online`/`last_offline` 为空时为 `null`。
+- `agentDevice`: 输出目标实测的配置类型：`config.timeout` 是含 `enabled`、`interval_seconds`、`max_count`、`scripts` 的对象，`queue_stale` 是字符串；`last_online`、`last_offline` 保留字符串形式。
 - `cityLinks`: 输出目标的城市字典和 links 结构。
 - `evaluationOverview`、`metrics`、`statusDashboard`: 输出稳定数组和状态分布键。
 
@@ -41,11 +41,13 @@
 
 **Purpose:** 让未知问题可以转换成知识库条目并完成状态闭环。
 
-**Flow:** `unknown_questions.pending -> converted`，在同一 SQLite 事务中插入 `knowledge_items`，写入 question/answer/keywords/sort_order，并记录 `converted_knowledge_id` 和转换时间。
+**Flow:** 前端将已转换问题标为 `resolved`，内部迁移状态为 `pending -> resolved`；在同一 SQLite 事务中插入 `knowledge_items`，写入 question/answer/keywords/sort_order，并记录 `converted_knowledge_id` 和 `converted_at`。关联元数据不暴露为未知问题的公开存储字段。
 
 **Rules:** 已转换的问题重复转换返回目标兼容的冲突错误；不存在的问题返回 404；缺少 answer 返回 422；转换失败事务回滚。
 
 **Acceptance:** API、数据库、知识库列表和原问题详情四段式测试通过；浏览器从未知问题点击转换后能在知识库页面读到新条目。
+
+**Implementation evidence (2026-10-23):** Migration `006_unknown_question_conversion.sql` stores the knowledge link and conversion time. The route uses one SQLite transaction, emits the UI-observed `resolved` state, and returns 404/409/422 for missing, repeated, or invalid conversions. Four endpoint tests cover success, visibility, conflict, validation and rollback; the local browser workflow was verified. Full suite: 45/45 tests; build passed. Post-Phase-2 read-only parity: 61 GETs, 48 verified, 13 data-dependent, 0 partial, 0 target-internal failures. Phase 3 has not started.
 
 ## Phase 3: Activation Rule Engine
 
@@ -62,6 +64,8 @@
 
 **Acceptance:** 每条规则有边界测试，策略测试接口返回真实匹配结果；激活名单由同一规则 engine 生成，避免 dashboard 和写接口各自实现一套条件。
 
+**Implementation evidence (2026-10-23):** `activation.rules.ts` evaluates all four strategies from a read-only snapshot and applies enabled/global-pause/cooldown gates. Migration 007 persists strategy code configuration. The strategy save/test routes share the evaluator, and the UI preview displays a human-readable evidence summary. Ten rule/API tests pass; full suite is 55/55 with build passing. Phase 3 read-only parity is 48 verified, 13 data-dependent, 0 partial and 0 target-internal failures. Phase 4 has not started.
+
 ## Phase 4: SQLite Scheduler
 
 **Purpose:** 先在本地跑通任务生成、领取、重试和完成，再保留 Redis/Celery 适配点。
@@ -71,6 +75,8 @@
 **Interfaces:** `JobStore` 负责 SQLite 持久化，`Scheduler` 负责轮询、领取、执行、退避和完成，`JobExecutor` 按任务类型分发。
 
 **Acceptance:** 任务不会重复领取；失败按指数退避；超过最大次数进入 dead-letter 状态；进程重启后未完成任务可恢复；用 fake clock 测试而不是等待真实时间。
+
+**Implementation evidence (2026-10-24):** Migration 008 adds `jobs`, `job_attempts`, and `job_locks`. `JobStore` and `Scheduler` implement transactional claim/reclaim/success/retry/dead-letter flows with injectable Clock, and `JobExecutor` provides typed kind dispatch. Eight focused scheduler/database tests pass. The core scheduler is verified; activation scan and message-send handlers are intentionally not wired yet.
 
 ## Phase 5: DifyProvider
 
