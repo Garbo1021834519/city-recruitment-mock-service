@@ -88,6 +88,8 @@
 
 **Acceptance:** mock provider 能驱动消息任务；HTTP provider 覆盖成功、超时、4xx、5xx；密钥不出现在日志和证据中。
 
+**Implementation evidence (2026-10-24):** `DifyProvider`, `MockDifyProvider`, and `HttpDifyProvider` are implemented. `message.send` uses the provider boundary and persists the returned reply locally; failures flow into scheduler retry/dead-letter. Nine provider/business integration tests pass, build passes, and Phase 5 read-only parity is 47 verified, 14 data-dependent, 0 partial and 0 target-internal failures.
+
 ## Phase 6: Events, Retry, Webhook Logs
 
 **Purpose:** 参考 SmartATS 的可追踪消息处理方式，记录事件、重试和 webhook。

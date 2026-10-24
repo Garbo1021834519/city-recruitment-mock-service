@@ -125,6 +125,16 @@ npm run dev
 - Phase 4 只读 GET parity：61 条，47 `verified`、14 `data-dependent`、0 `partial`、0 `target-internal-failure`。新增 data-dependent 项为本地激活记录/动态 dashboard 集合，不是结构差异。
 - Phase 4 状态：`verified`。下一步进入 Phase 5 `DifyProvider`。
 
+## DifyProvider Phase 5 验收（2026-10-24）
+
+- 新增 `DifyProvider` 接口、`MockDifyProvider` 和 `HttpDifyProvider`。
+- Mock provider 用于本地默认运行和测试；HTTP provider 调用 Dify `/chat-messages`，支持超时、非 2xx、安全错误映射和 `/parameters` 健康检查。
+- `message.send` executor 支持注入 provider；设备存在 Dify 地址和 key 时发送请求并把 provider 回复写入本地 `agent_messages`，否则使用 mock provider。
+- provider 错误会抛回 SQLite scheduler，沿用指数退避和 dead-letter；API key 不进入错误文本、日志或 parity 证据。
+- Provider 与业务接线测试 9 个通过；`npm run build` 通过。
+- Phase 5 只读 GET parity：61 条，47 `verified`、14 `data-dependent`、0 `partial`、0 `target-internal-failure`。
+- 证据：`过程文件/parity/readonly-authenticated-diff-phase5.json`。Phase 5 状态：`verified`。下一步进入 Phase 6 消息事件、delivery 重试和 webhook 日志。
+
 ## 复杂业务第二轮验收（2026-10-21）
 
 业务链路与目标页面验证：

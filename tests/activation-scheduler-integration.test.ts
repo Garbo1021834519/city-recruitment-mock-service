@@ -4,10 +4,17 @@ import { migrateDatabase } from "../src/db/migrate.js";
 import { JobStore, type Clock } from "../src/modules/scheduler/job-store.js";
 import { JobExecutor, Scheduler } from "../src/modules/scheduler/scheduler.js";
 import { ActivationJobService } from "../src/modules/activation/activation.jobs.js";
+import type { DifyMessageInput, DifyProvider } from "../src/modules/dify/dify-provider.js";
 
 class FakeClock implements Clock {
   private value = new Date("2026-10-24T12:00:00.000Z");
   now(): Date { return new Date(this.value); }
+}
+
+class RecordingProvider implements DifyProvider {
+  inputs: DifyMessageInput[] = [];
+  async sendMessage(input: DifyMessageInput) { this.inputs.push(input); return { success: true, message: "Dify provider reply", message_id: "provider-msg-1", conversation_id: "provider-conv-1" }; }
+  async healthCheck() { return { healthy: true, latency_ms: 1 }; }
 }
 
 describe("activation scheduler business wiring", () => {
@@ -72,7 +79,7 @@ describe("activation scheduler business wiring", () => {
     await scheduler.runOnce("worker-a", (job) => executor.execute(job));
     await scheduler.runOnce("worker-a", (job) => executor.execute(job));
     expect(database.prepare("SELECT status,tier FROM activation_records WHERE customer_id=502").get()).toMatchObject({ status: "sent", tier: 1 });
-    expect((database.prepare("SELECT COUNT(*) count FROM agent_messages WHERE customer_id=502 AND direction='outbound' AND content='本地自动激活消息'").get() as { count: number }).count).toBe(1);
+    expect((database.prepare("SELECT COUNT(*) count FROM agent_messages WHERE customer_id=502 AND direction='outbound' AND content<>'岗位信息'").get() as { count: number }).count).toBe(1);
     expect(store.get(sendJobs[0].id)?.status).toBe("succeeded");
   });
 
@@ -89,6 +96,23 @@ describe("activation scheduler business wiring", () => {
 
     expect((database.prepare("SELECT COUNT(*) count FROM agent_messages WHERE customer_id=503 AND direction='outbound'").get() as { count: number }).count).toBe(1);
     expect(database.prepare("SELECT status,tier FROM activation_records WHERE id=700").get()).toMatchObject({ status: "sent", tier: 1 });
+  });
+
+  it("uses an injected Dify provider for message jobs and stores the provider reply", async () => {
+    const { db: database, store, scheduler } = setup();
+    const provider = new RecordingProvider();
+    const jobs = new ActivationJobService(database, store, new FakeClock(), provider);
+    const executor = new JobExecutor();
+    jobs.registerExecutors(executor);
+    database.prepare("INSERT INTO agent_devices(id,device_name,status,data_json) VALUES (?,?,?,?)").run(88, "Dify 本地设备", "enabled", JSON.stringify({ device_code: "dify-device", dify_url: "http://dify.local", dify_key: "local-dify-key" }));
+    database.prepare("INSERT INTO activation_records(id,customer_id,device_code,status,script) VALUES (?,?,?,?,?)").run(701, 506, "dify-device", "pending_send", "本地触发词");
+    jobs.enqueueMessageSend(701);
+
+    await scheduler.runOnce("worker-a", (job) => executor.execute(job));
+
+    expect(provider.inputs).toHaveLength(1);
+    expect(provider.inputs[0]).toMatchObject({ baseUrl: "http://dify.local", apiKey: "local-dify-key", user: "506", query: "本地触发词" });
+    expect(database.prepare("SELECT content FROM agent_messages WHERE customer_id=506 AND direction='outbound'").get()).toMatchObject({ content: "Dify provider reply" });
   });
 
   it("exposes an admin-only HTTP trigger for a local scheduler scan", async () => {

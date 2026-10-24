@@ -3,6 +3,7 @@ import { JobExecutor } from "../scheduler/scheduler.js";
 import { JobStore, type Clock, type JobRecord } from "../scheduler/job-store.js";
 import { evaluateActivationRule, type ActivationRuleContext, type ActivationStrategyCode } from "./activation.rules.js";
 import { ACTIVATION_STRATEGY_DEFAULTS, activationStrategyDefault } from "./activation.strategies.js";
+import { MockDifyProvider, type DifyProvider } from "../dify/dify-provider.js";
 
 const STRATEGIES = ACTIVATION_STRATEGY_DEFAULTS.map((strategy) => strategy.code);
 
@@ -24,7 +25,11 @@ function contextFor(db: DatabaseSync, customerId: string, strategy: ActivationSt
 }
 
 export class ActivationJobService {
-  constructor(private readonly db: DatabaseSync, private readonly store: JobStore, private readonly clock: Clock) {}
+  private readonly provider: DifyProvider;
+
+  constructor(private readonly db: DatabaseSync, private readonly store: JobStore, private readonly clock: Clock, provider?: DifyProvider) {
+    this.provider = provider ?? new MockDifyProvider();
+  }
 
   enqueueScan(strategy?: ActivationStrategyCode): JobRecord {
     return this.store.enqueue({ kind: "activation.scan", payload: { strategy: strategy ?? null } });
@@ -71,7 +76,7 @@ export class ActivationJobService {
     }
   }
 
-  private runMessageSend(job: JobRecord): void {
+  private async runMessageSend(job: JobRecord): Promise<void> {
     const recordId = Number(job.payload.activation_record_id);
     const record = this.db.prepare("SELECT id,customer_id,device_code,status,script,tier FROM activation_records WHERE id=?").get(recordId) as { id: number; customer_id: number; device_code: string; status: string; script: string; tier: number } | undefined;
     if (!record) throw new Error(`Activation record not found: ${recordId}`);
@@ -79,9 +84,19 @@ export class ActivationJobService {
     if (!['pending_send', 'pending_review'].includes(record.status)) return;
     const message = record.script || String((this.db.prepare("SELECT content FROM activation_scripts WHERE status='enabled' ORDER BY id LIMIT 1").get() as { content: string } | undefined)?.content ?? "");
     if (!message) throw new Error("No enabled activation script available");
-    const exists = this.db.prepare("SELECT id FROM agent_messages WHERE device_code=? AND customer_id=? AND direction='outbound' AND content=? AND created_at>=datetime('now','-1 day') LIMIT 1").get(record.device_code, record.customer_id, message);
-    if (!exists) this.db.prepare("INSERT INTO agent_messages(device_code,customer_id,direction,content,status,created_at) VALUES (?,?, 'outbound',?,'sent',?)").run(record.device_code, record.customer_id, message, iso(this.clock));
-    this.db.prepare("UPDATE activation_records SET status='sent',script=?,tier=tier+1,updated_at=? WHERE id=? AND status IN ('pending_send','pending_review')").run(message, iso(this.clock), recordId);
+    const device = this.db.prepare("SELECT data_json FROM agent_devices WHERE json_extract(data_json,'$.device_code')=? LIMIT 1").get(record.device_code) as { data_json: string } | undefined;
+    const deviceData = device && typeof device.data_json === "string" ? JSON.parse(device.data_json) as Record<string, unknown> : {};
+    const providerResult = await this.provider.sendMessage({
+      baseUrl: String(deviceData.dify_url ?? "mock://local"),
+      apiKey: String(deviceData.dify_key ?? ""),
+      user: String(record.customer_id),
+      query: message,
+    });
+    if (!providerResult.success) throw new Error(providerResult.error ?? "Dify provider failed");
+    const outgoing = providerResult.message || message;
+    const exists = this.db.prepare("SELECT id FROM agent_messages WHERE device_code=? AND customer_id=? AND direction='outbound' AND content=? AND created_at>=datetime('now','-1 day') LIMIT 1").get(record.device_code, record.customer_id, outgoing);
+    if (!exists) this.db.prepare("INSERT INTO agent_messages(device_code,customer_id,direction,content,status,created_at) VALUES (?,?, 'outbound',?,'sent',?)").run(record.device_code, record.customer_id, outgoing, iso(this.clock));
+    this.db.prepare("UPDATE activation_records SET status='sent',script=?,tier=tier+1,updated_at=? WHERE id=? AND status IN ('pending_send','pending_review')").run(outgoing, iso(this.clock), recordId);
   }
 
   private customerIds(): string[] {
