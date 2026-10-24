@@ -135,6 +135,16 @@ npm run dev
 - Phase 5 只读 GET parity：61 条，47 `verified`、14 `data-dependent`、0 `partial`、0 `target-internal-failure`。
 - 证据：`过程文件/parity/readonly-authenticated-diff-phase5.json`。Phase 5 状态：`verified`。下一步进入 Phase 6 消息事件、delivery 重试和 webhook 日志。
 
+## Message Events Phase 6 验收（2026-10-24）
+
+- 新增迁移 009：`message_events`、`message_deliveries`、`webhook_logs`。
+- 消息事件使用 `event_id` 唯一键幂等；原始 payload 只保存 SHA-256 和类型/长度摘要，不保存消息正文、手机号或密钥。
+- delivery 记录 queued/sending/failed/succeeded、attempts、last_error、next_retry_at、provider_message_id；`message.send` 已接入事件和 delivery 状态。
+- 新增 `POST /api/v1/webhooks/dify`：HMAC-SHA256 签名校验，支持 processed/duplicate/rejected 三类日志；无效签名返回 401。
+- 事件、delivery、webhook 测试和 provider/任务接线测试共 12 个通过；`npm run build` 通过。
+- Phase 6 只读 GET parity：61 条，47 `verified`、14 `data-dependent`、0 `partial`、0 `target-internal-failure`。
+- 证据：`过程文件/parity/readonly-authenticated-diff-phase6.json`。Phase 6 状态：`verified`。
+
 ## 复杂业务第二轮验收（2026-10-21）
 
 业务链路与目标页面验证：

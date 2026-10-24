@@ -6,6 +6,7 @@ import { ACTIVATION_STRATEGY_DEFAULTS, activationStrategyDefault, isActivationSt
 import { JobExecutor, Scheduler } from "../scheduler/scheduler.js";
 import { JobStore } from "../scheduler/job-store.js";
 import { ActivationJobService } from "./activation.jobs.js";
+import { MessageEventService } from "../messaging/message-events.js";
 
 export async function registerActivationRoutes(app: FastifyInstance, db: DatabaseSync) {
   const jobClock = { now: () => new Date() };
@@ -14,6 +15,7 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
   const activationJobs = new ActivationJobService(db, jobStore, jobClock);
   const jobExecutor = new JobExecutor();
   activationJobs.registerExecutors(jobExecutor);
+  const messageEvents = new MessageEventService(db, { webhookSecret: process.env.REA_WEBHOOK_SECRET ?? "local-webhook-secret" });
   type RuntimeStrategy = Omit<ActivationStrategyDefinition, "config" | "enabled"> & Record<string, unknown> & { enabled: boolean };
   const readStrategyConfig = (code: ActivationStrategyCode) => {
     const definition = activationStrategyDefault(code) as ActivationStrategyDefinition;
@@ -60,6 +62,12 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
   app.get("/api/v1/activation/dashboard/population", async () => ["no_reply", "date_trigger", "misjudge", "paused"].map((code, index) => ({ name: ["A策略·无回复激活", "B策略·到期提醒", "C策略·误判捞回", "D策略·暂停求职"][index], value: Number((db.prepare("SELECT COUNT(*) count FROM activation_records WHERE strategy=?").get(code) as { count: number }).count) })));
   app.get("/api/v1/activation/dashboard/strategy-effect", async () => ["no_reply", "date_trigger", "misjudge", "paused"].map((code) => ({ code, sent: 0, replied: 0, rate: 0, good: false })));
   app.get("/api/v1/activation/dashboard/feed", async () => ({ items: [] }));
+  app.post<{ Body: Record<string, unknown> }>("/api/v1/webhooks/dify", async (request, reply) => {
+    const rawBody = JSON.stringify(request.body ?? {});
+    const signature = String(request.headers["x-dify-signature"] ?? "");
+    const result = messageEvents.handleWebhook(rawBody, signature);
+    return reply.code(result.status === "rejected" ? 401 : 200).send(result);
+  });
   app.post<{ Body: { strategy?: string } }>("/api/v1/activation/scheduler/run", async (request, reply) => {
     if (request.auth?.role !== "admin") return reply.code(403).send({ detail: "Admin required to run activation scheduler" });
     const strategy = typeof request.body?.strategy === "string" && isActivationStrategyCode(request.body.strategy) ? request.body.strategy : undefined;

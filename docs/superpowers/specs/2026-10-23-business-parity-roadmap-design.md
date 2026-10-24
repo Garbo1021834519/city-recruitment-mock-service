@@ -100,6 +100,8 @@
 
 **Acceptance:** 相同事件幂等；消息失败可重试；webhook 成功、重复、无效签名都有可查日志；dashboard 可读取失败计数。
 
+**Implementation evidence (2026-10-24):** Migration 009 adds `message_events`, `message_deliveries`, and `webhook_logs`. `MessageEventService` hashes/summarizes payloads, enforces event idempotency, tracks delivery transitions, and validates HMAC-signed Dify webhooks. `message.send` records event/delivery state around provider calls. Twelve focused provider/event/integration tests pass; Phase 6 parity is 47 verified, 14 data-dependent, 0 partial and 0 target-internal failures.
+
 ## Phase 7: Differential Gate
 
 **Purpose:** 每个已完成模块都用同一条目标站/本地路径验证。
