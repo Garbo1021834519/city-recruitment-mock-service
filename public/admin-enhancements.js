@@ -6,7 +6,7 @@ async function api(path, init = {}) {
     ...init,
     headers: {
       authorization: `Bearer ${token() || ""}`,
-      "content-type": "application/json",
+      ...(init.body !== undefined ? { "content-type": "application/json" } : {}),
       ...(init.headers || {}),
     },
   });
