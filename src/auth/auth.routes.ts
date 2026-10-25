@@ -1,6 +1,24 @@
 import type { FastifyInstance } from "fastify";
 import { AuthService } from "./auth.service.js";
 import { authPreHandler, rolePreHandler } from "./rbac.js";
+import {
+  AdminUserError,
+  createAdminUser,
+  disableAdminUser,
+  listAdminUsers,
+  listUserScopes,
+  replaceUserScopes,
+  resetAdminUserPassword,
+  updateAdminUser,
+} from "./admin-users.js";
+
+const adminOnly = (service: AuthService) => [authPreHandler(service), rolePreHandler("admin")];
+
+function sendAdminUserError(error: unknown, reply: import("fastify").FastifyReply) {
+  if (error instanceof AdminUserError) return reply.code(error.statusCode).send({ detail: error.message });
+  if (error instanceof Error && /UNIQUE constraint failed: users\.username/.test(error.message)) return reply.code(409).send({ detail: "Username already exists" });
+  throw error;
+}
 
 /**
  * FastAPI/Pydantic request-body schema for POST /auth/login.
@@ -34,24 +52,44 @@ export async function registerAuthRoutes(app: FastifyInstance, service: AuthServ
     return publicUser;
   });
 
-  app.get("/api/v1/auth/users", { preHandler: [authPreHandler(service), rolePreHandler("admin")] }, (request) => {
+  app.get<{ Querystring: Record<string, unknown> }>("/api/v1/auth/users", { preHandler: adminOnly(service) }, (request, reply) => {
     const db = request.server.db;
-    const rows = db.prepare("SELECT id,username,role,recruiter_id,recruiter_type,is_active,created_at,updated_at FROM users ORDER BY id").all();
-    return { items: rows, total: rows.length };
+    try { return listAdminUsers(db, request.query); }
+    catch (error) { return sendAdminUserError(error, reply); }
   });
 
-  app.post<{ Body: { username: string; password: string; role?: "admin" | "customer" | "recruiter" } }>("/api/v1/auth/users", { preHandler: [authPreHandler(service), rolePreHandler("admin")] }, async (request, reply) => {
-    const db = request.server.db;
-    const { hashPassword } = await import("../db/seed.js");
+  app.post<{ Body: Record<string, unknown> }>("/api/v1/auth/users", { preHandler: adminOnly(service) }, (request, reply) => {
+    try { return createAdminUser(request.server.db, request.auth!.id, request.body ?? {}); }
+    catch (error) { return sendAdminUserError(error, reply); }
+  });
+
+  app.put<{ Params: { id: string }; Body: Record<string, unknown> }>("/api/v1/auth/users/:id", { preHandler: adminOnly(service) }, (request, reply) => {
+    try { return updateAdminUser(request.server.db, request.auth!.id, Number(request.params.id), request.body ?? {}); }
+    catch (error) { return sendAdminUserError(error, reply); }
+  });
+
+  app.get<{ Params: { id: string } }>("/api/v1/auth/users/:id/scopes", { preHandler: adminOnly(service) }, (request, reply) => {
+    try { return { scopes: listUserScopes(request.server.db, Number(request.params.id)) }; }
+    catch (error) { return sendAdminUserError(error, reply); }
+  });
+
+  app.put<{ Params: { id: string }; Body: { scopes?: Array<{ type: "recruiter" | "city" | "device"; id: string }> } }>("/api/v1/auth/users/:id/scopes", { preHandler: adminOnly(service) }, (request, reply) => {
+    try { return { scopes: replaceUserScopes(request.server.db, Number(request.params.id), request.body?.scopes ?? []) }; }
+    catch (error) { return sendAdminUserError(error, reply); }
+  });
+
+  app.post<{ Params: { id: string }; Body: { password?: string } }>("/api/v1/auth/users/:id/reset-password", { preHandler: adminOnly(service) }, (request, reply) => {
     try {
-      const result = db.prepare("INSERT INTO users(username,password_hash,role) VALUES (?,?,?)").run(request.body.username, hashPassword(request.body.password), request.body.role ?? "customer");
-      return db.prepare("SELECT id,username,role,recruiter_id,recruiter_type,is_active FROM users WHERE id=?").get(Number(result.lastInsertRowid));
-    } catch { return reply.code(409).send({ detail: "Username already exists" }); }
+      if (typeof request.body?.password !== "string") throw new AdminUserError(422, "password is required");
+      resetAdminUserPassword(request.server.db, request.auth!.id, Number(request.params.id), request.body.password);
+      return { success: true };
+    } catch (error) { return sendAdminUserError(error, reply); }
   });
 
-  app.delete<{ Params: { id: string } }>("/api/v1/auth/users/:id", { preHandler: [authPreHandler(service), rolePreHandler("admin")] }, (request, reply) => {
-    const db = request.server.db;
-    const result = db.prepare("UPDATE users SET is_active=0,updated_at=CURRENT_TIMESTAMP WHERE id=?").run(Number(request.params.id));
-    return result.changes ? { success: true } : reply.code(404).send({ detail: "User not found" });
+  app.delete<{ Params: { id: string } }>("/api/v1/auth/users/:id", { preHandler: adminOnly(service) }, (request, reply) => {
+    try {
+      disableAdminUser(request.server.db, request.auth!.id, Number(request.params.id));
+      return { success: true };
+    } catch (error) { return sendAdminUserError(error, reply); }
   });
 }
