@@ -36,6 +36,8 @@ const PUBLIC_ROUTES = new Set([
   "GET /api/v1/agent/reminder-config",
   "GET /api/v1/agent/followup-config",
   "GET /api/v1/agent/report/account-summary",
+  // External message bridges authenticate callbacks with the HMAC header.
+  "POST /api/v1/webhooks/dify",
   // Device-called endpoints: device_code is a required query parameter, not a
   // secret. The target answers 422 when it is absent and 404 for an unknown
   // conversation even when the value is fake, with or without a bearer token.

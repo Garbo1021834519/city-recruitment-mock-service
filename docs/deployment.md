@@ -25,7 +25,27 @@ cd source
 REA_LOCAL_JWT_SECRET=<独立的高熵随机密钥>
 REA_WEBHOOK_SECRET=<独立的高熵随机密钥>
 REA_LOCAL_SEED_PASSWORD=<首次管理员登录密码>
+REA_DIFY_PROVIDER=mock
+REA_MESSAGE_CHANNEL_PROVIDER=mock
 ```
+
+`mock` 模式用于验收第一条业务闭环：签名入站消息会写入会话，生成一条确定性的 Mock Dify 回复，并以 `simulated` 状态写入 outbound 和 delivery 记录。它不会把文字发送到真实微信。接入真实 Dify 时，将 `REA_DIFY_PROVIDER` 改为 `http`，并在对应 `agent_devices.data_json` 中配置 `dify_url` 和 `dify_key`；接入真实消息通道前，必须实现并配置对应的 `MessageChannelProvider`。
+
+入站回调使用 HMAC-SHA256 验签，不需要用户 JWT。请求格式为：
+
+```json
+{
+  "id": "unique-event-id",
+  "event": "message.created",
+  "data": {
+    "device_code": "local-device-001",
+    "customer_id": 700001,
+    "content": "候选人消息"
+  }
+}
+```
+
+签名放在 `X-Dify-Signature` 请求头，当前实现对解析后的 JSON 使用紧凑 `JSON.stringify` 重新序列化后计算 HMAC，密钥是 `REA_WEBHOOK_SECRET`；发送方需保持字段顺序一致。
 
 ```bash
 chmod 600 .env.production

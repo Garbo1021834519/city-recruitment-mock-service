@@ -7,6 +7,9 @@ import { JobExecutor, Scheduler } from "../scheduler/scheduler.js";
 import { JobStore } from "../scheduler/job-store.js";
 import { ActivationJobService } from "./activation.jobs.js";
 import { MessageEventService } from "../messaging/message-events.js";
+import { MessageAutomationService } from "../messaging/message-automation.js";
+import { createMessageChannelProvider } from "../messaging/message-channel-provider.js";
+import { HttpDifyProvider, MockDifyProvider } from "../dify/dify-provider.js";
 import { canAccessDevice, deviceConstraint, getUserScope } from "../../auth/user-scopes.js";
 
 export async function registerActivationRoutes(app: FastifyInstance, db: DatabaseSync) {
@@ -14,10 +17,12 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
   const jobClock = { now: () => new Date() };
   const jobStore = new JobStore(db, jobClock);
   const jobScheduler = new Scheduler(jobStore, jobClock);
-  const activationJobs = new ActivationJobService(db, jobStore, jobClock);
+  const difyProvider = process.env.REA_DIFY_PROVIDER === "http" ? new HttpDifyProvider() : new MockDifyProvider();
+  const activationJobs = new ActivationJobService(db, jobStore, jobClock, difyProvider);
   const jobExecutor = new JobExecutor();
   activationJobs.registerExecutors(jobExecutor);
   const messageEvents = new MessageEventService(db, { webhookSecret: process.env.REA_WEBHOOK_SECRET ?? "local-webhook-secret" });
+  const messageAutomation = new MessageAutomationService(db, messageEvents, difyProvider, createMessageChannelProvider());
   type RuntimeStrategy = Omit<ActivationStrategyDefinition, "config" | "enabled"> & Record<string, unknown> & { enabled: boolean };
   const readStrategyConfig = (code: ActivationStrategyCode) => {
     const definition = activationStrategyDefault(code) as ActivationStrategyDefinition;
@@ -70,7 +75,19 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
     const rawBody = JSON.stringify(request.body ?? {});
     const signature = String(request.headers["x-dify-signature"] ?? "");
     const result = messageEvents.handleWebhook(rawBody, signature);
-    return reply.code(result.status === "rejected" ? 401 : 200).send(result);
+    if (result.status === "rejected") return reply.code(401).send(result);
+    const eventType = String(request.body?.event ?? "");
+    if (!["message.created", "message.received", "message.inbound"].includes(eventType)) return reply.send(result);
+    const data = request.body?.data as Record<string, unknown> | undefined;
+    const deviceCode = typeof data?.device_code === "string" ? data.device_code : "";
+    const customerId = Number(data?.customer_id ?? 0);
+    const content = typeof data?.content === "string" ? data.content : "";
+    if (!deviceCode || !Number.isSafeInteger(customerId) || customerId <= 0 || !content) {
+      return reply.code(422).send({ detail: "device_code, customer_id and content are required" });
+    }
+    const automation = await messageAutomation.handleInbound({ eventId: result.event_id!, deviceCode, customerId, content });
+    if (automation.reply_status === "failed") return reply.code(502).send(automation);
+    return reply.send({ ...result, ...automation });
   });
   app.post<{ Body: { strategy?: string } }>("/api/v1/activation/scheduler/run", async (request, reply) => {
     if (request.auth?.role !== "admin") return reply.code(403).send({ detail: "Admin required to run activation scheduler" });
