@@ -1,0 +1,10 @@
+{
+  "build_exit_code": 0,
+  "emitted_server": true,
+  "package_start_target_exists_in_clean_build": false,
+  "verify_script_exists": false,
+  "installed_vitest": "5.0.5",
+  "requested_vitest": "^3.2.4",
+  "installed_fastify": "5.12.7",
+  "installed_static": "10.1.7"
+}

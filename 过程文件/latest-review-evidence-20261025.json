@@ -1,0 +1,103 @@
+{
+  "takeover_during_generation": {
+    "result": {
+      "status": "processed",
+      "event_id": "review-takeover",
+      "reply_status": "simulated"
+    },
+    "outbound": {
+      "status": "simulated"
+    },
+    "expected": "human_takeover; no channel send"
+  },
+  "concurrent_conversation": {
+    "calls": [
+      {
+        "query": "first question",
+        "conversationId": null
+      },
+      {
+        "query": "second question",
+        "conversationId": null
+      }
+    ],
+    "final_conversation": {
+      "last_msg": "reply to first",
+      "external_conversation_id": "context-first"
+    }
+  },
+  "interrupted_delivery_retry": {
+    "http": 500,
+    "body": {
+      "detail": "Delivery is not available for sending"
+    },
+    "delivery": {
+      "status": "sending",
+      "attempts": 1
+    }
+  },
+  "duplicate_simulation_status": {
+    "first": {
+      "status": "processed",
+      "event_id": "review-duplicate",
+      "reply_status": "simulated"
+    },
+    "duplicate": {
+      "status": "duplicate",
+      "event_id": "review-duplicate",
+      "reason": "duplicate_event",
+      "reply_status": "sent"
+    }
+  },
+  "export_scope_bypass": {
+    "user": "local-recruiter",
+    "hidden_city": 99,
+    "list_has_marker": false,
+    "workbook_has_marker": true,
+    "http": 200
+  },
+  "clear_unread": {
+    "user": "local-recruiter",
+    "http": 200,
+    "body": {
+      "success": true
+    },
+    "unassigned_device_unread_before": 7,
+    "unassigned_device_unread_after": 0
+  },
+  "manual_reply": {
+    "http": 200,
+    "status": "sent",
+    "delivery_count": 0
+  },
+  "activation_run": {
+    "http": 200,
+    "status": "sent",
+    "tier": 1,
+    "jobs": 0
+  },
+  "import_stub": {
+    "http": 200,
+    "body": {
+      "success": true,
+      "filename": "review.csv",
+      "total": 0,
+      "created": 0,
+      "updated": 0
+    }
+  },
+  "delete_workflow": {
+    "before_keys": [
+      "device_code",
+      "recruiter_id"
+    ],
+    "after": {},
+    "webhook_http": 502,
+    "webhook": {
+      "status": "processed",
+      "event_id": "review-after-workflow-delete",
+      "reply_status": "failed",
+      "error": "Enabled message device not found"
+    }
+  }
+}
