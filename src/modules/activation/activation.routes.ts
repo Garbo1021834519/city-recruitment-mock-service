@@ -7,8 +7,10 @@ import { JobExecutor, Scheduler } from "../scheduler/scheduler.js";
 import { JobStore } from "../scheduler/job-store.js";
 import { ActivationJobService } from "./activation.jobs.js";
 import { MessageEventService } from "../messaging/message-events.js";
+import { canAccessDevice, deviceConstraint, getUserScope } from "../../auth/user-scopes.js";
 
 export async function registerActivationRoutes(app: FastifyInstance, db: DatabaseSync) {
+  const deviceScope = (auth: NonNullable<import("fastify").FastifyRequest["auth"]>) => getUserScope(db, auth);
   const jobClock = { now: () => new Date() };
   const jobStore = new JobStore(db, jobClock);
   const jobScheduler = new Scheduler(jobStore, jobClock);
@@ -51,15 +53,17 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
     return { conversation: conversation ?? null, messages, candidateEvents, lastActivationAt: activation?.created_at ?? null };
   };
 
-  app.get<{ Querystring: Record<string, unknown> }>("/api/v1/activation/records", async (request) => { const { page, pageSize, offset } = parsePagination(request.query); const rows = db.prepare("SELECT * FROM activation_records ORDER BY id DESC LIMIT ? OFFSET ?").all(pageSize, offset); const total = (db.prepare("SELECT COUNT(*) count FROM activation_records").get() as { count: number }).count; return { items: rows, total }; });
-  app.get("/api/v1/activation/dashboard/stats", async () => {
+  app.get<{ Querystring: Record<string, unknown> }>("/api/v1/activation/records", async (request) => { const { pageSize, offset } = parsePagination(request.query); const scope = deviceConstraint(deviceScope(request.auth!), "device_code"); const rows = db.prepare(`SELECT * FROM activation_records WHERE 1=1${scope.sql} ORDER BY id DESC LIMIT ? OFFSET ?`).all(...scope.values, pageSize, offset); const total = Number((db.prepare(`SELECT COUNT(*) count FROM activation_records WHERE 1=1${scope.sql}`).get(...scope.values) as { count: number }).count); return { items: rows, total }; });
+  app.get("/api/v1/activation/dashboard/stats", async (request) => {
     const today = new Date().toISOString().slice(0, 10);
-    const count = (status?: string) => Number((db.prepare(`SELECT COUNT(*) count FROM activation_records WHERE ${status ? "status=? AND " : ""}date(created_at)=date(?)`).get(...(status ? [status, today] : [today])) as { count: number }).count);
-    const sent = count("sent"); const replied = Number((db.prepare("SELECT COUNT(*) count FROM agent_messages WHERE direction='inbound' AND date(created_at)=date(?)").get(today) as { count: number }).count);
-    return { today_pending: count("pending_review") + count("pending_send"), today_sent: sent, today_replied: replied, reply_rate: sent ? replied / sent * 100 : 0, frozen_total: Number((db.prepare("SELECT COUNT(*) count FROM activation_records WHERE status='frozen'").get() as { count: number }).count), paused: Boolean((db.prepare("SELECT paused FROM activation_config WHERE id=1").get() as { paused: number } | undefined)?.paused) };
+    const scope = deviceConstraint(deviceScope(request.auth!), "device_code");
+    const count = (status?: string) => Number((db.prepare(`SELECT COUNT(*) count FROM activation_records WHERE ${status ? "status=? AND " : ""}date(created_at)=date(?)${scope.sql}`).get(...(status ? [status, today, ...scope.values] : [today, ...scope.values])) as { count: number }).count);
+    const replied = Number((db.prepare(`SELECT COUNT(*) count FROM agent_messages WHERE direction='inbound' AND date(created_at)=date(?)${scope.sql}`).get(today, ...scope.values) as { count: number }).count);
+    const sent = count("sent");
+    return { today_pending: count("pending_review") + count("pending_send"), today_sent: sent, today_replied: replied, reply_rate: sent ? replied / sent * 100 : 0, frozen_total: count("frozen"), paused: Boolean((db.prepare("SELECT paused FROM activation_config WHERE id=1").get() as { paused: number } | undefined)?.paused) };
   });
-  app.get("/api/v1/activation/dashboard/trend", async () => ({ items: Array.from({ length: 14 }, (_, index) => { const date = new Date(Date.now() - (13 - index) * 86400000).toISOString().slice(0, 10); return { date, sent: Number((db.prepare("SELECT COUNT(*) count FROM activation_records WHERE status='sent' AND date(updated_at)=date(?)").get(date) as { count: number }).count), replied: 0 }; }) }));
-  app.get("/api/v1/activation/dashboard/population", async () => ["no_reply", "date_trigger", "misjudge", "paused"].map((code, index) => ({ name: ["A策略·无回复激活", "B策略·到期提醒", "C策略·误判捞回", "D策略·暂停求职"][index], value: Number((db.prepare("SELECT COUNT(*) count FROM activation_records WHERE strategy=?").get(code) as { count: number }).count) })));
+  app.get("/api/v1/activation/dashboard/trend", async (request) => { const scope = deviceConstraint(deviceScope(request.auth!), "device_code"); return { items: Array.from({ length: 14 }, (_, index) => { const date = new Date(Date.now() - (13 - index) * 86400000).toISOString().slice(0, 10); return { date, sent: Number((db.prepare(`SELECT COUNT(*) count FROM activation_records WHERE status='sent' AND date(updated_at)=date(?)${scope.sql}`).get(date, ...scope.values) as { count: number }).count), replied: 0 }; }) }; });
+  app.get("/api/v1/activation/dashboard/population", async (request) => { const scope = deviceConstraint(deviceScope(request.auth!), "device_code"); return ["no_reply", "date_trigger", "misjudge", "paused"].map((code, index) => ({ name: ["A策略·无回复激活", "B策略·到期提醒", "C策略·误判捞回", "D策略·暂停求职"][index], value: Number((db.prepare(`SELECT COUNT(*) count FROM activation_records WHERE strategy=?${scope.sql}`).get(code, ...scope.values) as { count: number }).count) })); });
   app.get("/api/v1/activation/dashboard/strategy-effect", async () => ["no_reply", "date_trigger", "misjudge", "paused"].map((code) => ({ code, sent: 0, replied: 0, rate: 0, good: false })));
   app.get("/api/v1/activation/dashboard/feed", async () => ({ items: [] }));
   app.post<{ Body: Record<string, unknown> }>("/api/v1/webhooks/dify", async (request, reply) => {
@@ -86,6 +90,8 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
   app.put<{ Body: { paused?: boolean } }>("/api/v1/activation/config/paused", async (request) => { db.prepare("UPDATE activation_config SET paused=?,updated_at=CURRENT_TIMESTAMP WHERE id=1").run(request.body?.paused ? 1 : 0); return readActivationConfig(); });
   for (const action of ["approve", "skip", "freeze", "run"] as const) {
     app.post<{ Params: { id: string }; Body: { days?: number; reason?: string; script_id?: number } }>(`/api/v1/activation/records/:id/${action}`, async (request, reply) => {
+      const record = db.prepare("SELECT device_code FROM activation_records WHERE id=?").get(Number(request.params.id)) as { device_code: string } | undefined;
+      if (!record || !canAccessDevice(deviceScope(request.auth!), record.device_code)) return reply.code(404).send({ detail: "激活记录不存在" });
       const status = action === "approve" ? "pending_send" : action === "skip" ? "skipped" : action === "freeze" ? "frozen" : "sent";
       const result = db.prepare("UPDATE activation_records SET status=?,reason=COALESCE(?,reason),tier=CASE WHEN ?='sent' THEN tier+1 ELSE tier END,updated_at=CURRENT_TIMESTAMP WHERE id=?").run(status, request.body?.reason ?? null, status, Number(request.params.id));
       return result.changes ? db.prepare("SELECT * FROM activation_records WHERE id=?").get(Number(request.params.id)) : reply.code(404).send({ detail: "激活记录不存在" });
@@ -121,6 +127,7 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
     const strategy = readStrategy(code);
     const globallyPaused = Boolean((db.prepare("SELECT paused FROM activation_config WHERE id=1").get() as { paused: number } | undefined)?.paused);
     const context = readRuleContext(customerId, code);
+    if (request.auth?.role !== "admin" && (!context.conversation || !canAccessDevice(deviceScope(request.auth!), String(context.conversation.device_code ?? "")))) return reply.code(404).send({ detail: "客户不存在或无权访问" });
     const evaluated = evaluateActivationRule({ strategy: code, context, config: { ...strategy, enabled: strategy.enabled }, globallyPaused });
     return { success: true, strategy_id: code, customer_id: customerId, ...evaluated, summary: summarizeActivationRule(code, context, evaluated) };
   });
@@ -138,7 +145,7 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
   // Target item shape (no `id`): device_code, name, recruiter_id,
   // activation_enabled (0/1), daily_limit, hourly_limit, burst10_limit,
   // today_sent, dify_url — all numbers where a flag is expected.
-  app.get("/api/v1/activation/devices", async () => {
+  app.get("/api/v1/activation/devices", async (request) => {
     const rows = db.prepare("SELECT * FROM activation_devices ORDER BY id").all() as Array<Record<string, unknown>>;
     const items = rows.map((row) => {
       const data = typeof row.data_json === "string" ? JSON.parse(row.data_json) : {};
@@ -154,11 +161,13 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
         dify_url: String(data.dify_url ?? ""),
       };
     });
-    return { items };
+    const scope = deviceScope(request.auth!);
+    return { items: items.filter((item) => canAccessDevice(scope, String(item.device_code ?? ""))) };
   });
   app.get<{ Params: { id: string } }>("/api/v1/activation/customers/:id", async (request, reply) => {
     const customerId = Number(request.params.id);
-    const records = db.prepare("SELECT * FROM activation_records WHERE customer_id=? ORDER BY id DESC").all(customerId);
+    const scope = deviceConstraint(deviceScope(request.auth!), "device_code");
+    const records = db.prepare(`SELECT * FROM activation_records WHERE customer_id=?${scope.sql} ORDER BY id DESC`).all(customerId, ...scope.values);
     if (!records.length) return reply.code(404).send({ detail: "客户不存在或无权访问" });
     return { customer_id: customerId, summary: "", records };
   });
@@ -166,7 +175,8 @@ export async function registerActivationRoutes(app: FastifyInstance, db: Databas
   // the target answers 404 "客户不存在或无权访问" otherwise.
   app.post<{ Params: { id: string } }>("/api/v1/activation/customers/:id/regenerate-summary", async (request, reply) => {
     const customerId = Number(request.params.id);
-    const records = db.prepare("SELECT * FROM activation_records WHERE customer_id=? ORDER BY id DESC").all(customerId);
+    const scope = deviceConstraint(deviceScope(request.auth!), "device_code");
+    const records = db.prepare(`SELECT * FROM activation_records WHERE customer_id=?${scope.sql} ORDER BY id DESC`).all(customerId, ...scope.values);
     if (!records.length) return reply.code(404).send({ detail: "客户不存在或无权访问" });
     return { success: true, customer_id: customerId, summary: "" };
   });

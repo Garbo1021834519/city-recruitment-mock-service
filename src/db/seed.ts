@@ -45,6 +45,12 @@ export function seedDatabase(db: DatabaseSync): void {
 
   db.prepare("INSERT OR IGNORE INTO recruiters(id,username,city_id,data_json) VALUES (1,'mock-recruiter',1,?)")
     .run(JSON.stringify({ recruiter_id: "mock-recruiter", name: "示例招聘员", recruiter_type: "service" }));
+  db.prepare("UPDATE users SET recruiter_id='mock-recruiter' WHERE username IN ('local-customer','local-recruiter') AND recruiter_id=''").run();
+  const seedScope = db.prepare("INSERT OR IGNORE INTO user_scope_assignments(user_id,scope_type,scope_id) SELECT id,?,? FROM users WHERE username=?");
+  for (const username of ["local-customer", "local-recruiter"]) {
+    seedScope.run("recruiter", "mock-recruiter", username);
+    seedScope.run("city", "1", username);
+  }
 
   const candidates = [
     { customer_id: "mock-c1", nickname: "示例候选人A", name: "张三（示例）", phone: "13800000001", city: "广州" },
@@ -61,6 +67,23 @@ export function seedDatabase(db: DatabaseSync): void {
   db.prepare("INSERT OR IGNORE INTO activation_config(id) VALUES (1)").run();
   db.prepare("INSERT OR IGNORE INTO activation_devices(id,device_name,status,data_json) VALUES (1,'本地示例设备','enabled','{}')").run();
   db.prepare("INSERT OR IGNORE INTO agent_devices(id,device_name,status,data_json) VALUES (1,'本地示例设备','enabled','{}')").run();
+  const demoDevice = db.prepare("SELECT data_json FROM agent_devices WHERE id=1").get() as { data_json: string } | undefined;
+  if (demoDevice) {
+    let deviceData: Record<string, unknown> = {};
+    try { deviceData = JSON.parse(demoDevice.data_json) as Record<string, unknown>; } catch { deviceData = {}; }
+    if (!deviceData.device_code) {
+      deviceData.device_code = "local-device-001";
+      deviceData.recruiter_id = "mock-recruiter";
+      db.prepare("UPDATE agent_devices SET data_json=?,updated_at=CURRENT_TIMESTAMP WHERE id=1").run(JSON.stringify(deviceData));
+    }
+  }
+  for (const username of ["local-customer", "local-recruiter"]) seedScope.run("device", "local-device-001", username);
+  db.prepare("INSERT OR IGNORE INTO agent_conversations(device_code,customer_id,nickname,city,district,last_msg,last_msg_at,unread) VALUES (?,?,?,?,?,?,?,?)")
+    .run("local-device-001", 700001, "示例客户A", "广州", "天河区", "想了解一下长白班岗位", new Date().toISOString(), 1);
+  db.prepare("INSERT OR IGNORE INTO agent_messages(id,device_code,customer_id,direction,content,status) VALUES (700001,?,?,?,?,?)")
+    .run("local-device-001", 700001, "inbound", "想了解一下长白班岗位", "sent");
+  db.prepare("INSERT OR IGNORE INTO agent_messages(id,device_code,customer_id,direction,content,status) VALUES (700002,?,?,?,?,?)")
+    .run("local-device-001", 700001, "outbound", "可以的，我先给你发几个示例岗位。", "sent");
   const scripts = [
     [25, "有收到吗？收到回复下我呢", "寒暄召回"], [22, "这边还要找工作的么，这几天岗位都挺好的呢", "寒暄召回"], [16, "这边看的咋样啦，我们继续聊聊呗", "岗位推荐"],
   ] as const;
