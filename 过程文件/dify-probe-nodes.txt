@@ -1,0 +1,60 @@
+=== start | 开始 ===
+inputs: {"sys.files":[],"sys.user_id":"probe-test-1","sys.app_id":"c23c8e71-af96-4dd9-ae8b-305ab37faebe","sys.workflow_id":"1dc60d2c-6a8d-44c1-a2f4-ab7fb8f6bf14","sys.workflow_run_id":"e33e8dcd-5b4c-4ef8-a34f-8142424bef4b","sys.query":"hello","sys.conversation_id":"3c9f9255-fca5-4bec-8382-d6731c54855a","sys.dialogue_count":1}
+outputs: {"sys.files":[],"sys.user_id":"probe-test-1","sys.app_id":"c23c8e71-af96-4dd9-ae8b-305ab37faebe","sys.workflow_id":"1dc60d2c-6a8d-44c1-a2f4-ab7fb8f6bf14","sys.workflow_run_id":"e33e8dcd-5b4c-4ef8-a34f-8142424bef4b","sys.query":"hello","sys.conversation_id":"3c9f9255-fca5-4bec-8382-d6731c54855a","sys.dialogue_count":1}
+elapsed: 0.981867
+
+=== code | 代码执行 ===
+inputs: {}
+outputs: {"city_desc":"可以跟我说下你现在在哪个区吗？等会我把要求和待遇发给你","current_time":"2026-10-25 13:11:50","current_weekday":"周日","fuhe_desc":"看下要求全都符合吗","mianshi_desc":"没问题的话我们安排面试时间ok吗。其他方面有没有什么不明白的？","mianshi_time_desc":"2026-10-26 (明天)","mianshi_to_desc":"还有其他问题吗，没问题的话安排一下面试时间可以吗？","name_tel_desc":"发下姓名和电话给我登记，我发面试时间和位置给你哈","which_one_desc":"你想来广州，深圳还是东莞的厂区呢，都是新开的产线，保底有6000以上。"}
+elapsed: 0.976127
+
+=== code | 代码执行 3 ===
+inputs: {"hualin_state":"","sys_query":"hello"}
+outputs: {"city_data_prompt":"[未来7天日期对照]\n今天= 2026-10-25(周日)\n明天= 2026-10-26(周一)\n后天= 2026-10-27(周二)\n3天后= 2026-10-28(周三)\n4天后= 2026-10-29(周四)\n5天后= 2026-10-30(周五)\n6天后= 2026-10-31(周六)\n\n[招聘城市列表]\n东莞、中山、佛山、厦门、广州、深圳\n\n[城市区县映射]\n东莞: 清溪镇、长安\n中山: 黄圃\n佛山: 三水区、南海区\n厦门: 同安区\n广州: 从化区、白云\n深圳: 光明区、宝安、宝安区、龙华\n\n\n==============================\n[岗位1: 普工、操作工，包装，组装]\n==============================\n[岗位名称]: 普工、操作工，包装，组装\n[性别要求]: 不限\n[年龄要求]: 18-45周岁\n[可面试星期]: 周一、周二、周三、周四、周五、周六、周日\n[健康证要求]: 体检费70元\n[城市]: 中山\n[区县]: 黄圃\n[住宿要求]: 住宿/外宿都支持\n[门店/厂名]: 中山英维克\n[门店/厂区地址]: ###广东英维克华南总部制造基地(广东省中山市保成二巷与高平大道交叉口正西方向730米左右) & 22.696972,113.459009###\n[门店/厂区经纬度]: 22.696972,113.459009\n[面试时间]: 13:00-14:00\n\n--- 面试点1:  ---\n\n[招聘工种]:\n###正式工和临时工都招，正式工买社保，小时工不买社保\n\n[招聘要求]:\n###招聘要求：\n1.需要入职后体检自费70，有3个月内体检表可以不用\n2.查征信案底和纹身，四大已满，身体
+elapsed: 0.929355
+
+=== assigner | 变量赋值 ===
+inputs: {"title":"变量赋值","desc":null,"version":"2","error_strategy":null,"default_value":null,"retry_config":{"max_retries":0,"retry_interval":0,"retry_enabled":false},"items":[{"variable_selector":["conversation","hualin_state"],"input_type":"variable","operation":"over-write","value":["1778640554990","hualin_state"]}]}
+outputs: {}
+elapsed: 0.706953
+
+=== if-else | 条件分支 2 ===
+inputs: {"conditions":[{"actual_value":1,"expected_value":"1","comparison_operator":"="}]}
+outputs: {"result":true,"selected_case_id":"true"}
+elapsed: 0.685477
+
+=== llm | 流程1 ===
+inputs: {}
+outputs: {"text":"你好呀～###你现在在哪个区呢？等会发详细的给你看看","reasoning_content":"","usage":{"prompt_tokens":22636,"prompt_unit_price":"0","prompt_price_unit":"0","prompt_price":"0","completion_tokens":302,"completion_unit_price":"0","completion_price_unit":"0","completion_price":"0","total_tokens":22938,"total_price":"0","currency":"USD","latency":2.852,"time_to_first_token":2.776,"time_to_generate":0.076},"finish_reason":"stop"}
+elapsed: 3.084535
+
+=== code | 选择LLM回复 ===
+inputs: {"llm_reply_1":"你好呀～###你现在在哪个区呢？等会发详细的给你看看","hualin_state":"{\"flow_step\": 1}","llm_reply_2":null,"llm_reply_3":null,"llm_reply_4":null}
+outputs: {"final_content":"你好呀～###你现在在哪个区呢？等会发详细的给你看看","need_fix":false}
+elapsed: 0.043477
+
+=== code | 看流程是否推进，修改流程 ===
+inputs: {"llm_reply_1":"你好呀～###你现在在哪个区呢？等会发详细的给你看看","hualin_state":"{\"flow_step\": 1}","llm_reply_2":null,"llm_reply_3":null,"llm_reply_4":null,"query":"hello","history":"","city_data_prompt":"[未来7天日期对照]\n今天= 2026-10-25(周日)\n明天= 2026-10-26(周一)\n后天= 2026-10-27(周二)\n3天后= 2026-10-28(周三)\n4天后= 2026-10-29(周四)\n5天后= 2026-10-30(周五)\n6天后= 2026-10-31(周六)\n\n[招聘城市列表]\n东莞、中山、佛山、厦门、广州、深圳\n\n[城市区县映射]\n东莞: 清溪镇、长安\n中山: 黄圃\n佛山: 三水区、南海区\n厦门: 同安区\n广州: 从化区、白云\n深圳: 光明区、宝安、宝安区、龙华\n\n\n==============================\n[岗位1: 普工、操作工，包装，组装]\n==============================\n[岗位名称]: 普工、操作工，包装，组装\n[性别要求]: 不限\n[年龄要求]: 18-45周岁\n[可面试星期]: 周一、周二、周三、周四、周五、周六、周日\n[健康证要求]: 体检费70元\n[城市]: 中山\n[区县]: 黄圃\n[住宿要求]: 住宿/外宿都支持\n[门店/厂名]: 中山英维克\n[门店/厂区地址]: ###广东英维克华南总部制造基地(广东省中山市保成二巷与高平大道交叉口正西方向730米左右) & 22.696972,113.459009###\n[门店/厂区经纬度]: 22.
+outputs: {"flow_step_for_branch":1,"history":"应聘者：hello\n回复：你好呀～###你现在在哪个区呢？等会发详细的给你看看\n\n","hualin_state":"{\"flow_step\": 1, \"switched_factories\": []}","reply":"你好呀～###你现在在哪个区呢？等会发详细的给你看看"}
+elapsed: 0.065896
+
+=== if-else | 条件分支 2 ===
+inputs: {"conditions":[{"actual_value":false,"expected_value":true,"comparison_operator":"is"}]}
+outputs: {"result":false,"selected_case_id":"false"}
+elapsed: 0.032071
+
+=== code | 代码执行 2 ===
+inputs: {"arg1":"你好呀～###你现在在哪个区呢？等会发详细的给你看看"}
+outputs: {"result":"你好呀～###你现在在哪个区呢？等会发详细的给你看看"}
+elapsed: 0.04558
+
+=== assigner | 存储上次对话内容 ===
+inputs: {"title":"存储上次对话内容","desc":null,"version":"2","error_strategy":null,"default_value":null,"retry_config":{"max_retries":0,"retry_interval":0,"retry_enabled":false},"items":[{"variable_selector":["conversation","hualin_state"],"input_type":"variable","operation":"over-write","value":["1782630618502","hualin_state"]},{"variable_selector":["conversation","history"],"input_type":"variable","operation":"over-write","value":["1782630618502","history"]}]}
+outputs: {}
+elapsed: 0.017896
+
+=== answer | 直接回复 ===
+inputs: {}
+outputs: {"answer":"你好呀～###你现在在哪个区呢？等会发详细的给你看看","files":[]}
+elapsed: 0.013755
+
