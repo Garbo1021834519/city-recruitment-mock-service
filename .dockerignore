@@ -1,0 +1,10 @@
+.git
+node_modules
+dist
+data
+过程文件
+*.sqlite
+*.sqlite-*
+*.log
+.env
+.env.*
