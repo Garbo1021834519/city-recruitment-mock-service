@@ -19,6 +19,7 @@ import { registerAgentRoutes } from "./modules/agent/agent.routes.js";
 import { registerActivationRoutes } from "./modules/activation/activation.routes.js";
 import { registerRelationRoutes } from "./modules/relations/relations.routes.js";
 import { registerPermissionRoutes } from "./modules/permissions/permission.routes.js";
+import { registerAdminRoutes } from "./modules/admin/admin.routes.js";
 
 declare module "fastify" {
   interface FastifyInstance { db: DatabaseSync }
@@ -86,6 +87,7 @@ export function buildServer() {
   registerActivationRoutes(app, db);
   registerRelationRoutes(app, db);
   registerPermissionRoutes(app);
+  registerAdminRoutes(app, db);
   registerGenericRoutes(app);
 
   // preHandler runs only after routing and schema validation, matching the
