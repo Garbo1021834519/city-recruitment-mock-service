@@ -20,4 +20,4 @@ COPY --from=build --chown=node:node /app/public ./public
 
 USER node
 EXPOSE 4222
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/src/server.js"]
