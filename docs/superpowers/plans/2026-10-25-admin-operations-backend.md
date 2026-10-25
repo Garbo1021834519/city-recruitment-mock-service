@@ -124,7 +124,7 @@
 - [x] Run `npm test -- tests/admin-overview.test.ts tests/permissions.test.ts tests/response-serializers.test.ts`; 13 tests passed and Playwright showed the cards.
 - [x] Commit as `feat: add global admin operations overview`.
 
-### Task 6: Verify And Push [In Progress]
+### Task 6: Verify And Push [Completed]
 
 **Files:**
 - Modify: `docs/verification.md`
@@ -135,5 +135,5 @@
 - [x] Log in as `local-admin`, create and edit a scoped recruiter account, verify its access, disable it, and verify it cannot log in or use its prior token; Playwright verified reset, 401 for the old token, reactivation, and the admin overview cards.
 - [x] Run the authenticated read-only parity probe and confirm the existing customer response contract remains stable; Phase 7 reported 45 `verified`, 16 `data-dependent`, 0 `partial`, and 0 `target-internal-failure`.
 - [x] Update verification notes with observed outcomes and limits; mark each completed plan checkbox only after its evidence passes.
-- [ ] Review `git diff --check`, stage only files changed for this feature, and commit as `feat: build multi-user admin operations backend`.
-- [ ] Push the current branch to its configured remote and record the pushed commit ID.
+- [x] Review `git diff --check`, stage only files changed for this feature, and commit as `feat: build multi-user admin operations backend` (`5bb181a`).
+- [x] Push the current branch to its configured remote; `5bb181a` is on `origin/main`.
