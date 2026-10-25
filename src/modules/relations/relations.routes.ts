@@ -16,8 +16,8 @@ export async function registerRelationRoutes(app: FastifyInstance, db: DatabaseS
     const total = (db.prepare("SELECT COUNT(*) count FROM city_history WHERE city_id=?").get(cityId) as { count: number }).count;
     return { items: rows, total };
   });
-  app.get<{ Params: { id: string } }>("/api/v1/cities/:id/history/:historyId", async (request, reply) => { const row = db.prepare("SELECT * FROM city_history WHERE id=? AND city_id=?").get(Number((request.params as { id: string; historyId: string }).historyId), Number(request.params.id)) as { snapshot_json: string } | undefined; return row ? JSON.parse(row.snapshot_json) : reply.code(404).send({ detail: "历史记录不存在" }); });
-  app.post<{ Params: { id: string; historyId: string } }>("/api/v1/cities/:id/restore/:historyId", async (request, reply) => { const row = db.prepare("SELECT snapshot_json FROM city_history WHERE id=? AND city_id=?").get(Number(request.params.historyId), Number(request.params.id)) as { snapshot_json: string } | undefined; if (!row) return reply.code(404).send({ detail: "历史记录不存在" }); const snapshot = JSON.parse(row.snapshot_json); db.prepare("UPDATE cities SET data_json=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").run(JSON.stringify(snapshot), Number(request.params.id)); return { success: true, city: snapshot }; });
+  app.get<{ Params: { id: string } }>("/api/v1/cities/:id/history/:historyId", async (request, reply) => { const cityId = Number(request.params.id); if (!canAccessCity(userScope(request), cityId)) return reply.code(404).send({ detail: "历史记录不存在" }); const row = db.prepare("SELECT * FROM city_history WHERE id=? AND city_id=?").get(Number((request.params as { id: string; historyId: string }).historyId), cityId) as { snapshot_json: string } | undefined; return row ? JSON.parse(row.snapshot_json) : reply.code(404).send({ detail: "历史记录不存在" }); });
+  app.post<{ Params: { id: string; historyId: string } }>("/api/v1/cities/:id/restore/:historyId", async (request, reply) => { const cityId = Number(request.params.id); if (!canAccessCity(userScope(request), cityId)) return reply.code(404).send({ detail: "历史记录不存在" }); const row = db.prepare("SELECT snapshot_json FROM city_history WHERE id=? AND city_id=?").get(Number(request.params.historyId), cityId) as { snapshot_json: string } | undefined; if (!row) return reply.code(404).send({ detail: "历史记录不存在" }); const snapshot = JSON.parse(row.snapshot_json); db.prepare("UPDATE cities SET data_json=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").run(JSON.stringify(snapshot), cityId); return { success: true, city: snapshot }; });
   /**
    * Target shape: {options: [{city, count}], default_districts: {city: [...]}}
    * — counted links per city plus the built-in district list per city.
@@ -65,8 +65,9 @@ export async function registerRelationRoutes(app: FastifyInstance, db: DatabaseS
   });
   app.get<{ Params: { id: string } }>("/api/v1/recruiters/:id/cities", async (request, reply) => {
     const recruiterId = Number(request.params.id);
-    if (!recruiterExists(recruiterId) || !canAccessRecruiter(userScope(request), String(recruiterId))) return reply.code(404).send({ detail: "Recruiter not found" });
-    const rows = db.prepare("SELECT rc.*,c.city_name FROM recruiter_cities rc JOIN cities c ON c.id=rc.city_id WHERE rc.recruiter_id=? AND rc.is_service=0 ORDER BY rc.sort_order,c.city_name").all(recruiterId);
+    const scope = userScope(request);
+    if (!recruiterExists(recruiterId) || !canAccessRecruiter(scope, String(recruiterId))) return reply.code(404).send({ detail: "Recruiter not found" });
+    const rows = (db.prepare("SELECT rc.*,c.city_name FROM recruiter_cities rc JOIN cities c ON c.id=rc.city_id WHERE rc.recruiter_id=? AND rc.is_service=0 ORDER BY rc.sort_order,c.city_name").all(recruiterId) as Array<{ city_id: number }>).filter((row) => canAccessCity(scope, row.city_id));
     return { items: rows, total: rows.length };
   });
   app.post<{ Params: { id: string }; Body: { city_id?: number } }>("/api/v1/recruiters/:id/cities", async (request, reply) => { const recruiterId = Number(request.params.id); const cityId = Number(request.body?.city_id); const scope = userScope(request); if (!recruiterExists(recruiterId) || !canAccessRecruiter(scope, String(recruiterId))) return reply.code(404).send({ detail: "Recruiter not found" }); if (!canAccessCity(scope, cityId)) return reply.code(403).send({ detail: "无权关联该城市" }); db.prepare("INSERT OR REPLACE INTO recruiter_cities(recruiter_id,city_id,is_service) VALUES (?,?,0)").run(recruiterId, cityId); return { success: true }; });
@@ -89,7 +90,9 @@ export async function registerRelationRoutes(app: FastifyInstance, db: DatabaseS
   });
   app.delete<{ Params: { id: string; cityId: string } }>("/api/v1/recruiters/:id/cities/:cityId", async (request, reply) => {
     const recruiterId = Number(request.params.id);
-    if (!recruiterExists(recruiterId) || !canAccessRecruiter(userScope(request), String(recruiterId))) return reply.code(404).send({ detail: "Recruiter not found" });
+    const scope = userScope(request);
+    if (!recruiterExists(recruiterId) || !canAccessRecruiter(scope, String(recruiterId))) return reply.code(404).send({ detail: "Recruiter not found" });
+    if (!canAccessCity(scope, Number(request.params.cityId))) return reply.code(403).send({ detail: "无权关联该城市" });
     const result = db.prepare("DELETE FROM recruiter_cities WHERE recruiter_id=? AND city_id=? AND is_service=0").run(recruiterId, Number(request.params.cityId));
     return result.changes ? { success: true } : reply.code(404).send({ detail: "Recruiter not found" });
   });
@@ -97,8 +100,10 @@ export async function registerRelationRoutes(app: FastifyInstance, db: DatabaseS
   const recruiterExists = (id: number) => Boolean(db.prepare("SELECT id FROM recruiters WHERE id=?").get(id));
   app.get<{ Params: { id: string } }>("/api/v1/recruiters/:id/service-cities", async (request, reply) => {
     const recruiterId = Number(request.params.id);
-    if (!recruiterExists(recruiterId)) return reply.code(404).send({ detail: "Recruiter not found" });
-    return { items: db.prepare("SELECT rc.*,c.city_name FROM recruiter_cities rc JOIN cities c ON c.id=rc.city_id WHERE rc.recruiter_id=? AND rc.is_service=1 ORDER BY c.city_name").all(recruiterId) };
+    const scope = userScope(request);
+    if (!recruiterExists(recruiterId) || !canAccessRecruiter(scope, request.params.id)) return reply.code(404).send({ detail: "Recruiter not found" });
+    const rows = (db.prepare("SELECT rc.*,c.city_name FROM recruiter_cities rc JOIN cities c ON c.id=rc.city_id WHERE rc.recruiter_id=? AND rc.is_service=1 ORDER BY c.city_name").all(recruiterId) as Array<{ city_id: number }>).filter((row) => canAccessCity(scope, row.city_id));
+    return { items: rows };
   });
   app.get<{ Params: { id: string } }>("/api/v1/recruiters/:id/service-cities/options", async (request, reply) => {
     if (!recruiterExists(Number(request.params.id)) || !canAccessRecruiter(userScope(request), request.params.id)) return reply.code(404).send({ detail: "Recruiter not found" });

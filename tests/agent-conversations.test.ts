@@ -39,4 +39,10 @@ describe("local agent conversation flow", () => {
     expect(response.statusCode).toBe(422);
     expect(response.json().detail).toEqual(expect.arrayContaining([expect.objectContaining({ loc: ["query", "device_code"] })]));
   });
+
+  it("keeps device restart callable without a bearer token", async () => {
+    const response = await app.inject({ method: "PUT", url: "/api/v1/agent/conversations/700001/restart?device_code=local-device-001" });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ success: true });
+  });
 });

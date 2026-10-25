@@ -24,6 +24,15 @@
 | `local-customer` | `local-demo-only` | `customer` | 客户角色测试 |
 | `local-recruiter` | `local-demo-only` | `recruiter` | 招聘员路由守卫测试 |
 
+## Admin Operations Backend 验收（2026-10-25）
+
+- 修复公开设备重启接口的匿名调用契约：无 bearer 仍可调用；带 bearer 时会解析当前用户并执行设备范围校验。
+- 补齐范围边界：城市状态、候选人标记、激活操作、城市历史恢复、岗位假期、招聘员关系、知识库详情/批量操作、节假日我的城市和 Agent 状态看板均按用户范围过滤；全局设置与激活/Agent 配置写入仅 admin 可执行，设置只读 GET 保持目标站兼容。
+- Playwright 在隔离数据库 `过程文件/admin-ops-final-verify.sqlite` 运行 `/users`：`local-admin` 创建 `qa-admin-flow`、编辑为 recruiter 并绑定 `recruiter:mock-recruiter`、`city:1`、`device:local-device-001`、重置密码、停用、恢复均成功；新账号登录后只看到城市 1 和 `local-device-001`，访问城市 2 返回 404；停用后的旧 token 调用 `/api/v1/auth/me` 返回 401；`/status-dashboard` 显示后台运营总览卡片。验证账号最后保持停用状态，仅存在于隔离库。
+- 新增回归覆盖匿名/带 token 设备重启、跨城市/设备写入、资源列表/详情/批量操作越权和全局配置写入权限。
+- 最新全量验证：`npm test -- --maxWorkers=1 --minWorkers=1` 为 24 个测试文件、95 个测试全部通过；`npm run build` 通过；`git diff --check` 无错误。
+- 只读认证 parity 探针（目标账号 `yihong`，只执行登录和 GET）写入 `过程文件/parity/readonly-authenticated-diff-phase7.json`：61 条 GET 中 45 `verified`、16 `data-dependent`、0 `partial`、0 `target-internal-failure`。差异仅来自目标真实数据与本地虚构种子数据量/内容不同。
+
 ## 启动
 
 ```powershell

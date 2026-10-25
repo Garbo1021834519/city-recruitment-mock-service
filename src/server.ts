@@ -119,6 +119,18 @@ export function buildServer() {
         const issues = collectValidationErrors(contract, request.body, request.query, isMultipart);
         if (issues.length) return reply.code(422).send({ detail: issues });
       }
+      // Device endpoints are callable anonymously, but a supplied bearer token
+      // still identifies the operator and must participate in scope checks.
+      // Keep the login endpoint credential-agnostic.
+      const optionalHeader = request.headers.authorization;
+      if (optionalHeader?.startsWith("Bearer ") && pathname !== "/api/v1/auth/login") {
+        try {
+          request.auth = auth.me(optionalHeader.slice("Bearer ".length));
+          request.authToken = optionalHeader.slice("Bearer ".length);
+        } catch {
+          return reply.code(401).send(AUTH_INVALID);
+        }
+      }
       return;
     }
 

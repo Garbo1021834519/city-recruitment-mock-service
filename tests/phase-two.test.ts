@@ -16,6 +16,7 @@ describe("phase-two agent and activation flows", () => {
   it("creates a device and persists a manual reply", async () => {
     const device = await app.inject({ method: "POST", url: "/api/v1/agent/devices", headers: { authorization: `Bearer ${token}` }, payload: { device_code: "D-1", device_name: "测试设备", status: "enabled" } });
     expect(device.statusCode).toBe(200);
+    app.db.prepare("INSERT INTO agent_conversations(device_code,customer_id,nickname) VALUES (?,?,?)").run("D-1", 7, "测试客户");
     const reply = await app.inject({ method: "POST", url: "/api/v1/agent/manual-reply", headers: { authorization: `Bearer ${token}` }, payload: { device_code: "D-1", customer_id: 7, content: "你好" } });
     expect(reply.statusCode).toBe(200);
     const messages = await app.inject({ method: "GET", url: "/api/v1/agent/messages?device_code=D-1&customer_id=7&after_id=0", headers: { authorization: `Bearer ${token}` } });

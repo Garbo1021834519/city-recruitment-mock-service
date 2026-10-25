@@ -4,6 +4,8 @@ import { serializeAgentDevice, serializeCandidate, serializeMetrics, serializeSt
 import { canAccessDevice, deviceConstraint, getUserScope } from "../../auth/user-scopes.js";
 
 export async function registerAgentRoutes(app: FastifyInstance, db: DatabaseSync) {
+  const canAccessDeviceForRequest = (request: import("fastify").FastifyRequest, deviceCode: string) =>
+    !request.auth || canAccessDevice(getUserScope(db, request.auth), deviceCode);
   // Target envelope has no `total`; each item carries the Dify config fields:
   // id, device_code, name, dify_url, dify_key, recruiter_id, status, online,
   // mode, config, last_online, created_at, last_offline, queue_depth, queue_stale
@@ -53,6 +55,8 @@ export async function registerAgentRoutes(app: FastifyInstance, db: DatabaseSync
     return db.prepare("SELECT * FROM candidate_events WHERE id=?").get(Number(result.lastInsertRowid));
   });
   app.post<{ Params: { id: string }; Body: { status?: string } }>("/api/v1/agent/candidates/:id/mark", async (request, reply) => {
+    const candidate = db.prepare("SELECT device_code FROM candidate_events WHERE id=?").get(Number(request.params.id)) as { device_code: string } | undefined;
+    if (!candidate || !canAccessDevice(getUserScope(db, request.auth!), candidate.device_code)) return reply.code(404).send({ detail: "候选人不存在" });
     const result = db.prepare("UPDATE candidate_events SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").run(request.body?.status ?? "marked", Number(request.params.id));
     return result.changes ? db.prepare("SELECT * FROM candidate_events WHERE id=?").get(Number(request.params.id)) : reply.code(404).send({ detail: "候选人不存在" });
   });
@@ -92,19 +96,27 @@ export async function registerAgentRoutes(app: FastifyInstance, db: DatabaseSync
     const result = db.prepare("DELETE FROM old_friend_records WHERE id=?").run(Number(request.params.id));
     return result.changes ? { success: true } : reply.code(404).send({ detail: "Old friend not found" });
   });
-  app.get("/api/v1/agent/status/dashboard", async () => {
-    const devices = (db.prepare("SELECT COUNT(*) AS total FROM agent_devices").get() as { total: number }).total;
-    const messages = (db.prepare("SELECT COUNT(*) AS total FROM agent_messages").get() as { total: number }).total;
-    const pending = (db.prepare("SELECT COUNT(*) AS total FROM agent_conversations WHERE state='pending_invite'").get() as { total: number }).total;
-    const failed = (db.prepare("SELECT COUNT(*) AS total FROM agent_messages WHERE status='failed'").get() as { total: number }).total;
+  app.get("/api/v1/agent/status/dashboard", async (request) => {
+    const scope = getUserScope(db, request.auth!);
+    const deviceFilter = (column: string) => deviceConstraint(scope, column);
+    const agentDeviceFilter = scope.isAdmin ? { sql: "", values: [] as string[] } : scope.deviceCodes.length
+      ? { sql: ` AND json_extract(data_json,'$.device_code') IN (${scope.deviceCodes.map(() => "?").join(",")})`, values: scope.deviceCodes }
+      : { sql: " AND 1=0", values: [] as string[] };
+    const devices = (db.prepare(`SELECT COUNT(*) AS total FROM agent_devices WHERE 1=1${agentDeviceFilter.sql}`).get(...agentDeviceFilter.values) as { total: number }).total;
+    const messagesScope = deviceFilter("device_code");
+    const messages = (db.prepare(`SELECT COUNT(*) AS total FROM agent_messages WHERE 1=1${messagesScope.sql}`).get(...messagesScope.values) as { total: number }).total;
+    const pendingScope = deviceFilter("device_code");
+    const pending = (db.prepare(`SELECT COUNT(*) AS total FROM agent_conversations WHERE state='pending_invite'${pendingScope.sql}`).get(...pendingScope.values) as { total: number }).total;
+    const failedScope = deviceFilter("device_code");
+    const failed = (db.prepare(`SELECT COUNT(*) AS total FROM agent_messages WHERE status='failed'${failedScope.sql}`).get(...failedScope.values) as { total: number }).total;
     const hourly = Array.from({ length: 24 }, (_, hour) => ({ hour, count: 0 }));
     return serializeStatusDashboard({ devices: { total: devices, active_today: 0 }, messages: { total: messages, hourly }, queue: { pending }, errors: { failed_today: failed, ai_abnormal: 0 }, state_distribution: {}, device_ranking: [], dify_health: [], degraded: [], daily_trend: [] });
   });
   // device_code is a required query parameter on the target (422 when absent),
   // but its value is not authenticated: any string reaches the DB lookup.
   const deviceQuerySchema = { querystring: { type: "object", required: ["device_code"], properties: { device_code: { type: "string" } } } } as const;
-  app.put<{ Params: { id: string }; Querystring: { device_code: string } }>("/api/v1/agent/conversations/:id/restart", { schema: deviceQuerySchema }, async (request, reply) => { const deviceCode = request.query.device_code; if (!canAccessDevice(getUserScope(db, request.auth!), deviceCode)) return reply.code(403).send({ detail: "Device scope required" }); const result = db.prepare("UPDATE agent_conversations SET state='active',recruit_status='none',updated_at=CURRENT_TIMESTAMP WHERE customer_id=? AND device_code=?").run(Number(request.params.id), deviceCode); return result.changes ? { success: true } : reply.code(404).send({ detail: "Conversation not found" }); });
-  app.put<{ Params: { id: string }; Querystring: { device_code: string } }>("/api/v1/agent/conversations/:id/reset-disqualified", { schema: deviceQuerySchema }, async (request, reply) => { const deviceCode = request.query.device_code; if (!canAccessDevice(getUserScope(db, request.auth!), deviceCode)) return reply.code(403).send({ detail: "Device scope required" }); const result = db.prepare("UPDATE agent_conversations SET state='active',recruit_status='none',updated_at=CURRENT_TIMESTAMP WHERE customer_id=? AND device_code=?").run(Number(request.params.id), deviceCode); return result.changes ? { success: true } : reply.code(404).send({ detail: "Conversation not found" }); });
+  app.put<{ Params: { id: string }; Querystring: { device_code: string } }>("/api/v1/agent/conversations/:id/restart", { schema: deviceQuerySchema }, async (request, reply) => { const deviceCode = request.query.device_code; if (!canAccessDeviceForRequest(request, deviceCode)) return reply.code(403).send({ detail: "Device scope required" }); const result = db.prepare("UPDATE agent_conversations SET state='active',recruit_status='none',updated_at=CURRENT_TIMESTAMP WHERE customer_id=? AND device_code=?").run(Number(request.params.id), deviceCode); return result.changes ? { success: true } : reply.code(404).send({ detail: "Conversation not found" }); });
+  app.put<{ Params: { id: string }; Querystring: { device_code: string } }>("/api/v1/agent/conversations/:id/reset-disqualified", { schema: deviceQuerySchema }, async (request, reply) => { const deviceCode = request.query.device_code; if (!canAccessDeviceForRequest(request, deviceCode)) return reply.code(403).send({ detail: "Device scope required" }); const result = db.prepare("UPDATE agent_conversations SET state='active',recruit_status='none',updated_at=CURRENT_TIMESTAMP WHERE customer_id=? AND device_code=?").run(Number(request.params.id), deviceCode); return result.changes ? { success: true } : reply.code(404).send({ detail: "Conversation not found" }); });
   // Target 404s "Device not found" when the device row is missing.
   app.post<{ Params: { id: string } }>("/api/v1/agent/device/:id/clear-unread", async (request, reply) => {
     const deviceId = Number(request.params.id);
